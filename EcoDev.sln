@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcoDev.Engine", "EcoDev\EcoDev.Engine.csproj", "{5388D079-6789-4BEB-97E7-2872B9BB3BC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcoDev.Core", "EcoDev.Core\EcoDev.Core.csproj", "{5C5DEBB7-904C-4955-80BC-30C19EA63EE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcoDev.UnitTests", "EcoDev.UnitTests\EcoDev.UnitTests.csproj", "{FE9CEE6C-177B-4E5C-BA56-FB2E87635527}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{140B16C5-1B1B-4A67-B4C9-0AB08959B52D}"
+	ProjectSection(SolutionItems) = preProject
+		EcoDev.vsmdi = EcoDev.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = EcoDev.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5388D079-6789-4BEB-97E7-2872B9BB3BC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5388D079-6789-4BEB-97E7-2872B9BB3BC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5388D079-6789-4BEB-97E7-2872B9BB3BC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5388D079-6789-4BEB-97E7-2872B9BB3BC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C5DEBB7-904C-4955-80BC-30C19EA63EE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C5DEBB7-904C-4955-80BC-30C19EA63EE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C5DEBB7-904C-4955-80BC-30C19EA63EE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C5DEBB7-904C-4955-80BC-30C19EA63EE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE9CEE6C-177B-4E5C-BA56-FB2E87635527}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE9CEE6C-177B-4E5C-BA56-FB2E87635527}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE9CEE6C-177B-4E5C-BA56-FB2E87635527}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE9CEE6C-177B-4E5C-BA56-FB2E87635527}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
