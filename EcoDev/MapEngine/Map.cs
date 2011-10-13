@@ -39,10 +39,39 @@ namespace EcoDev.Engine.MapEngine
 		private long _depthInUnits;
 		public long DepthInUnits { get { return _depthInUnits; } }
 
-		public void Set(long x, long y, long z, MapBlock block)
+		public bool Set(long x, long y, long z, MapBlock block)
 		{
 			ValidatePosition(x, y, z);
-			_mapContainer[x, y, z] = block;
+			var proposedPosition = _mapContainer[x, y, z];
+
+			// Check for allowed block positioning
+			if (proposedPosition == null)
+			{
+				_mapContainer[x, y, z] = block;
+				return true;
+			}
+
+			return false;
+		}
+
+		public void Clear(long x, long y, long z)
+		{
+			ValidatePosition(x,y,z);
+			_mapContainer[x, y, z] = null;
+		}
+
+		public void ClearAll()
+		{
+			for (long xPos = 0; xPos < _widthInUnits; xPos++)
+			{
+				for (long yPos = 0; yPos < _heightInUnits; yPos++)
+				{
+					for (int zPos = 0; zPos < _depthInUnits; zPos++)
+					{
+						_mapContainer[xPos, yPos, zPos] = null;
+					}
+				}
+			}
 		}
 
 		protected void ValidatePosition(long x, long y, long z)

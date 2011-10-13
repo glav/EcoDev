@@ -120,8 +120,13 @@ namespace EcoDev.UnitTests
 		public void MapShouldOutputSimpleDebugRepresentation()
 		{
 			var map = new Map(10, 10, 1);
-			map.Set(0, 0, 0, new MapEntranceBlock());
-			map.Set(9, 9, 0, new MapExitBlock());
+			Assert.IsTrue(map.Set(0, 0, 0, new MapEntranceBlock()));
+			Assert.IsTrue(map.Set(9, 9, 0, new MapExitBlock()));
+			Assert.IsTrue(map.Set(2, 6, 0, new SolidBlock()));
+			Assert.IsTrue(map.Set(1, 4, 0, new SolidBlock()));
+
+			// Should be false as this position is already filled
+			Assert.IsFalse(map.Set(1, 4, 0, new SolidBlock()));
 
 			map.CreateWorld();
 			var mapOutput = map.ToString();
@@ -129,6 +134,35 @@ namespace EcoDev.UnitTests
 			Assert.IsNotNull(mapOutput);
 			Assert.IsTrue(mapOutput.Contains(new MapEntranceBlock().ToString()));
 			Assert.IsTrue(mapOutput.Contains(new MapExitBlock().ToString()));
+		}
+
+		[TestMethod]
+		public void MapSetAndClearPositions()
+		{
+			var map = new Map(10, 10, 1);
+			Assert.IsTrue(map.Set(0, 0, 0, new MapEntranceBlock()));
+			Assert.IsTrue(map.Set(9, 9, 0, new MapExitBlock()));
+			Assert.IsTrue(map.Set(2, 6, 0, new SolidBlock()));
+			Assert.IsTrue(map.Set(1, 4, 0, new SolidBlock()));
+
+			// Should be false as this position is already filled
+			Assert.IsFalse(map.Set(1, 4, 0, new SolidBlock()));
+
+			map.Clear(1, 4, 0);
+
+			// Should be true now as this position was cleared
+			Assert.IsTrue(map.Set(1, 4, 0, new SolidBlock()));
+
+			map.ClearAll();
+
+			try
+			{
+				// Now that everything has been cleared, this will fail
+				// as there is no mandatory entrance and exit
+				map.CreateWorld();
+				Assert.Fail("Creating a cleared map should fail as there is no entry or exit");
+			}
+			catch (MapInvalidException mex) { }
 		}
 	}
 }
