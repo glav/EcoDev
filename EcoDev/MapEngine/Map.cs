@@ -64,7 +64,6 @@ namespace EcoDev.Engine.MapEngine
 		public void ClearAll()
 		{
 			Parallel.For(0, _widthInUnits, (xPos) =>
-			//for (int xPos = 0; xPos < _widthInUnits; xPos++)
 			{
 				for (int yPos = 0; yPos < _heightInUnits; yPos++)
 				{
@@ -100,7 +99,6 @@ namespace EcoDev.Engine.MapEngine
 			bool hasExit = false;
 
 			Parallel.For(0, _widthInUnits, (xPos) =>
-			//for (int xPos = 0; xPos < _widthInUnits; xPos++)
 			{
 				for (int yPos = 0; yPos < _heightInUnits; yPos++)
 				{
