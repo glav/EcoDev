@@ -43,6 +43,7 @@
     <Compile Include="MapEngine\Map.cs" />
     <Compile Include="MapEngine\MapInvalidException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorldEngine\EcoWorld.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EcoDev.Core\EcoDev.Core.csproj">
