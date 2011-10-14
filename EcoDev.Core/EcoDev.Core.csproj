@@ -40,17 +40,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Actions\ActionContext.cs" />
+    <Compile Include="Common\Actions\ActionResult.cs" />
+    <Compile Include="Common\Actions\ActionToPerform.cs" />
     <Compile Include="Common\BaseEntity.cs" />
     <Compile Include="Common\BuildingBlocks\MapBlockAccessibility.cs" />
     <Compile Include="Common\BuildingBlocks\MapEntranceBlock.cs" />
     <Compile Include="Common\BuildingBlocks\MapExitBlock.cs" />
     <Compile Include="Common\BuildingBlocks\SolidBlock.cs" />
+    <Compile Include="Common\MovementDirection.cs" />
+    <Compile Include="Common\LivingEntityQualities.cs" />
     <Compile Include="Common\Materials\EntityMaterial.cs" />
     <Compile Include="Common\EntitySize.cs" />
     <Compile Include="Common\EntityBaseType.cs" />
     <Compile Include="Common\LivingEntity.cs" />
     <Compile Include="Common\MapBlock.cs" />
     <Compile Include="Common\Materials\AdamantiumMaterial.cs" />
+    <Compile Include="Common\PlayerEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
