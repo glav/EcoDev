@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EcoDev.Core.Common;
 using EcoDev.Engine.MapEngine;
 using EcoDev.Core.Common.BuildingBlocks;
+using System.Diagnostics;
 
 namespace EcoDev.UnitTests
 {
@@ -163,6 +164,31 @@ namespace EcoDev.UnitTests
 				Assert.Fail("Creating a cleared map should fail as there is no entry or exit");
 			}
 			catch (MapInvalidException mex) { }
+		}
+
+		[TestMethod]
+		public void LargeMapShouldPerformWell()
+		{
+			// The largest map
+			try
+			{
+				var maxValueToUse = 300;
+				Stopwatch watch = new Stopwatch();
+
+				watch.Start();
+				var map = new Map(maxValueToUse, maxValueToUse, maxValueToUse);
+
+				map.Set(0, 0, 0, new MapEntranceBlock());
+				map.Set(maxValueToUse - 2, maxValueToUse - 2, maxValueToUse-2, new MapExitBlock());
+				map.CreateWorld();
+
+				watch.Stop();
+				Console.WriteLine(string.Format("Map creation took {0} milliseconds", watch.ElapsedMilliseconds));
+			}
+			catch (OutOfMemoryException oex)
+			{
+				Assert.Inconclusive("You ran out of memory");
+			}
 		}
 	}
 }
