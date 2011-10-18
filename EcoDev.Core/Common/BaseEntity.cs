@@ -11,6 +11,7 @@ namespace EcoDev.Core.Common
 		public string Name { get; set; }
 		public Guid LifeKey { get; set; }
 		public abstract EntityBaseType EntityType { get; }
+		public IWorld World { get; set; }
 
 		public EntitySize Size { get; set; }
 		public EntityMaterial CompositionMaterial { get; set; }

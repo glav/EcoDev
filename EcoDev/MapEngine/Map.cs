@@ -5,12 +5,13 @@ using System.Text;
 using EcoDev.Core.Common;
 using EcoDev.Core.Common.BuildingBlocks;
 using System.Threading.Tasks;
+using EcoDev.Core.Common.Maps;
 
 namespace EcoDev.Engine.MapEngine
 {
 	public class Map
 	{
-		private MapBlock[,,] _mapContainer;
+		private WorldMapBlock[,,] _mapContainer;
 
 		public Map(int width, int height, int depth)
 		{
@@ -26,9 +27,15 @@ namespace EcoDev.Engine.MapEngine
 			CreateMapContainer();
 		}
 
+		private List<MapPosition> _entrances = new List<MapPosition>();
+		public IEnumerable<MapPosition> Entrances { get { return _entrances; } }
+
+		private List<MapPosition> _exits = new List<MapPosition>();
+		public IEnumerable<MapPosition> Exits { get { return _exits; } }
+
 		private void CreateMapContainer()
 		{
-			_mapContainer = new MapBlock[_widthInUnits, _heightInUnits, _depthInUnits];
+			_mapContainer = new WorldMapBlock[_widthInUnits, _heightInUnits, _depthInUnits];
 		}
 
 		private int _widthInUnits;
@@ -48,7 +55,8 @@ namespace EcoDev.Engine.MapEngine
 			// Check for allowed block positioning
 			if (proposedPosition == null)
 			{
-				_mapContainer[x, y, z] = block;
+				WorldMapBlock worldMapBlock = new WorldMapBlock() { MapBlockItem = block };
+				_mapContainer[x, y, z] = worldMapBlock;
 				return true;
 			}
 
@@ -88,16 +96,13 @@ namespace EcoDev.Engine.MapEngine
 			}
 		}
 
-		public void CreateWorld()
+		public void InitialiseMap()
 		{
 			ValidateMap();
 		}
 
 		protected void ValidateMap()
 		{
-			bool hasEntry = false;
-			bool hasExit = false;
-
 			Parallel.For(0, _widthInUnits, (xPos) =>
 			{
 				for (int yPos = 0; yPos < _heightInUnits; yPos++)
@@ -107,26 +112,20 @@ namespace EcoDev.Engine.MapEngine
 						var mapBlock = _mapContainer[xPos, yPos, zPos];
 						if (mapBlock != null)
 						{
-							if (mapBlock.Accessibility == MapBlockAccessibility.AllowEntry)
+							if (mapBlock.MapBlockItem.Accessibility == MapBlockAccessibility.AllowEntry)
 							{
-								hasEntry = true;
+								_entrances.Add(new MapPosition(xPos, yPos, zPos));
 							}
-							if (mapBlock.Accessibility == MapBlockAccessibility.AllowExit)
+							if (mapBlock.MapBlockItem.Accessibility == MapBlockAccessibility.AllowExit)
 							{
-								hasExit = true;
+								_exits.Add(new MapPosition(xPos, yPos, zPos));
 							}
 						}
-
-						if (hasExit && hasEntry)
-						{
-							break;
-						}
-
 					}
 				}
 			});
 
-			if (!hasEntry || !hasExit)
+			if (_entrances.Count == 0 || _exits.Count == 0)
 			{
 				throw new MapInvalidException("Map must have at least 1 entry and 1 exit");
 			}
@@ -153,7 +152,7 @@ namespace EcoDev.Engine.MapEngine
 					mapText.Append("|");
 					for (int xPos = 0; xPos < _widthInUnits; xPos++)
 					{
-						var textBlock = ConvertTextBlockToMapBlock(_mapContainer[xPos, yPos, zPos]);
+						var textBlock = ConvertMapBlockToTextBlock(_mapContainer[xPos, yPos, zPos]);
 						mapText.Append(textBlock);
 					}
 					mapText.AppendFormat("|{0}", Environment.NewLine);
@@ -170,14 +169,18 @@ namespace EcoDev.Engine.MapEngine
 			return mapText.ToString();
 		}
 
-		private string ConvertTextBlockToMapBlock(MapBlock mapBlock)
+		private string ConvertMapBlockToTextBlock(WorldMapBlock mapBlock)
 		{
 			if (mapBlock == null)
 			{
 				return " ";
 			}
 
-			return mapBlock.ToString();
+			if (mapBlock.EntityOccupyingBlockPosition != null)
+			{
+				return mapBlock.EntityOccupyingBlockPosition.ToString();
+			}
+			return mapBlock.MapBlockItem.ToString();
 
 		}
 	}

@@ -85,7 +85,7 @@ namespace EcoDev.UnitTests
 			map.Set(0, 0, 0, new MapEntranceBlock());
 			map.Set(9, 9, 9, new MapExitBlock());
 
-			map.CreateWorld();
+			map.InitialiseMap();
 		}
 		
 
@@ -97,7 +97,7 @@ namespace EcoDev.UnitTests
 
 			try
 			{
-				map.CreateWorld();
+				map.InitialiseMap();
 				Assert.Fail("Map should not validate without an entry point.");
 			}
 			catch (MapInvalidException mex) { }
@@ -111,7 +111,7 @@ namespace EcoDev.UnitTests
 
 			try
 			{
-				map.CreateWorld();
+				map.InitialiseMap();
 				Assert.Fail("Map should not validate without an exit point.");
 			}
 			catch (MapInvalidException mex) { }
@@ -129,7 +129,7 @@ namespace EcoDev.UnitTests
 			// Should be false as this position is already filled
 			Assert.IsFalse(map.Set(1, 4, 0, new SolidBlock()));
 
-			map.CreateWorld();
+			map.InitialiseMap();
 			var mapOutput = map.ToString();
 
 			Assert.IsNotNull(mapOutput);
@@ -160,7 +160,7 @@ namespace EcoDev.UnitTests
 			{
 				// Now that everything has been cleared, this will fail
 				// as there is no mandatory entrance and exit
-				map.CreateWorld();
+				map.InitialiseMap();
 				Assert.Fail("Creating a cleared map should fail as there is no entry or exit");
 			}
 			catch (MapInvalidException mex) { }
@@ -180,7 +180,7 @@ namespace EcoDev.UnitTests
 
 				map.Set(0, 0, 0, new MapEntranceBlock());
 				map.Set(maxValueToUse - 2, maxValueToUse - 2, maxValueToUse-2, new MapExitBlock());
-				map.CreateWorld();
+				map.InitialiseMap();
 
 				watch.Stop();
 				Console.WriteLine(string.Format("Map creation took {0} milliseconds", watch.ElapsedMilliseconds));

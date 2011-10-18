@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using EcoDev.Core.Common.BuildingBlocks;
 
-namespace EcoDev.Core.Common
+namespace EcoDev.Core.Common.Maps
 {
 	public abstract class MapBlock: BaseEntity
 	{
