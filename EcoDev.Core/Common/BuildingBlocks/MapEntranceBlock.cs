@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EcoDev.Core.Common;
+using EcoDev.Core.Common.Maps;
 
 namespace EcoDev.Core.Common.BuildingBlocks
 {

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EcoDev.Core.Common
 {
-	public abstract class LivingEntityQualities
+	public class LivingEntityQualities
 	{
 		public double Intelligence { get; set; }
 		public double Sight { get; set; }
