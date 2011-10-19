@@ -11,7 +11,7 @@ namespace EcoDev.Engine.MapEngine
 {
 	public class Map
 	{
-		private WorldMapBlock[,,] _mapContainer;
+		private MapBlock[,,] _mapContainer;
 
 		public Map(int width, int height, int depth)
 		{
@@ -35,7 +35,7 @@ namespace EcoDev.Engine.MapEngine
 
 		private void CreateMapContainer()
 		{
-			_mapContainer = new WorldMapBlock[_widthInUnits, _heightInUnits, _depthInUnits];
+			_mapContainer = new MapBlock[_widthInUnits, _heightInUnits, _depthInUnits];
 		}
 
 		private int _widthInUnits;
@@ -55,12 +55,17 @@ namespace EcoDev.Engine.MapEngine
 			// Check for allowed block positioning
 			if (proposedPosition == null)
 			{
-				WorldMapBlock worldMapBlock = new WorldMapBlock() { MapBlockItem = block };
-				_mapContainer[x, y, z] = worldMapBlock;
+				_mapContainer[x, y, z] = block;
 				return true;
 			}
 
 			return false;
+		}
+
+		public MapBlock Get(int x, int y, int z)
+		{
+			// TODO: Check map dimensions before returning a block. If exceeds, return null
+			return _mapContainer[x, y, z];
 		}
 
 		public void Clear(int x, int y, int z)
@@ -98,10 +103,13 @@ namespace EcoDev.Engine.MapEngine
 
 		public void InitialiseMap()
 		{
-			ValidateMap();
+			if (ValidateMap() == false)
+			{
+				throw new MapInvalidException("Map is invalid. Ensure at least 1 entrance and exit are positioned on the edge of the map");
+			}
 		}
 
-		protected void ValidateMap()
+		protected bool ValidateMap()
 		{
 			Parallel.For(0, _widthInUnits, (xPos) =>
 			{
@@ -112,13 +120,19 @@ namespace EcoDev.Engine.MapEngine
 						var mapBlock = _mapContainer[xPos, yPos, zPos];
 						if (mapBlock != null)
 						{
-							if (mapBlock.MapBlockItem.Accessibility == MapBlockAccessibility.AllowEntry)
+							if (mapBlock.Accessibility == MapBlockAccessibility.AllowEntry)
 							{
-								_entrances.Add(new MapPosition(xPos, yPos, zPos));
+								if (IsPositionOnEdgeOfMap(xPos,yPos,zPos))
+								{
+									_entrances.Add(new MapPosition(xPos, yPos, zPos));
+								}
 							}
-							if (mapBlock.MapBlockItem.Accessibility == MapBlockAccessibility.AllowExit)
+							if (mapBlock.Accessibility == MapBlockAccessibility.AllowExit)
 							{
-								_exits.Add(new MapPosition(xPos, yPos, zPos));
+								if (IsPositionOnEdgeOfMap(xPos, yPos, zPos))
+								{
+									_exits.Add(new MapPosition(xPos, yPos, zPos));
+								}
 							}
 						}
 					}
@@ -127,8 +141,23 @@ namespace EcoDev.Engine.MapEngine
 
 			if (_entrances.Count == 0 || _exits.Count == 0)
 			{
-				throw new MapInvalidException("Map must have at least 1 entry and 1 exit");
+				return false;
 			}
+
+			return true;
+		}
+
+		private bool IsPositionOnEdgeOfMap(int x, int y, int z)
+		{
+			var xPosInValid = (x != 0 && x != (_widthInUnits-1));
+			var yPosInvalid = (y != 0 && y != (_heightInUnits-1));
+			var zPosInvalid = (z != 0 && z != (_depthInUnits-1));
+			if (xPosInValid || yPosInvalid || zPosInvalid)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		public override string ToString()
@@ -169,18 +198,14 @@ namespace EcoDev.Engine.MapEngine
 			return mapText.ToString();
 		}
 
-		private string ConvertMapBlockToTextBlock(WorldMapBlock mapBlock)
+		private string ConvertMapBlockToTextBlock(MapBlock mapBlock)
 		{
 			if (mapBlock == null)
 			{
 				return " ";
 			}
 
-			if (mapBlock.EntityOccupyingBlockPosition != null)
-			{
-				return mapBlock.EntityOccupyingBlockPosition.ToString();
-			}
-			return mapBlock.MapBlockItem.ToString();
+			return mapBlock.ToString();
 
 		}
 	}

@@ -116,7 +116,22 @@ namespace EcoDev.UnitTests
 			}
 			catch (MapInvalidException mex) { }
 		}
-		
+
+		[TestMethod]
+		public void MapShouldEnsureExistsAreOnEdgeOfMap()
+		{
+			var map = new Map(10, 10, 10);
+			map.Set(0, 0, 0, new MapEntranceBlock());
+			map.Set(8, 8, 8, new MapExitBlock());
+
+			try
+			{
+				map.InitialiseMap();
+				Assert.Fail("Map should not validate with an exit not on the outer edge of map.");
+			}
+			catch (MapInvalidException mex) { }
+		}
+
 		[TestMethod]
 		public void MapShouldOutputSimpleDebugRepresentation()
 		{
@@ -179,7 +194,7 @@ namespace EcoDev.UnitTests
 				var map = new Map(maxValueToUse, maxValueToUse, maxValueToUse);
 
 				map.Set(0, 0, 0, new MapEntranceBlock());
-				map.Set(maxValueToUse - 2, maxValueToUse - 2, maxValueToUse-2, new MapExitBlock());
+				map.Set(maxValueToUse - 1, maxValueToUse - 1, maxValueToUse-1, new MapExitBlock());
 				map.InitialiseMap();
 
 				watch.Stop();

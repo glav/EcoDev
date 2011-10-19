@@ -18,5 +18,6 @@ namespace EcoDev.Engine.Entities
 		public LivingEntity Entity { get; set; }
 		public LivingEntityQualities Qualities { get; set; }
 		public MapPosition PositionInMap { get; set; }
+		public WorldAxis ForwardFacingAxis { get; set; }
 	}
 }
