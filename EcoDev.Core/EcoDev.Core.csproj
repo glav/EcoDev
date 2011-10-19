@@ -60,6 +60,7 @@
     <Compile Include="Common\Maps\MapBlock.cs" />
     <Compile Include="Common\Materials\AdamantiumMaterial.cs" />
     <Compile Include="Common\PlayerEntity.cs" />
+    <Compile Include="Common\WorldAxis.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

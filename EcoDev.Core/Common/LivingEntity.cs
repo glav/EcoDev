@@ -14,5 +14,10 @@ namespace EcoDev.Core.Common
 		}
 
 		public abstract ActionResult DecideActionToPerform(ActionContext actionContext);
+
+		public override string ToString()
+		{
+			return "*";
+		}
 	}
 }

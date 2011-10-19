@@ -22,6 +22,11 @@ namespace TestEcoWorldHost
 
 			world.AddPlayer(player);
 			world.StartWorld();
+
+			Console.WriteLine("World Started. Hit ENTER to stop");
+			Console.ReadLine();
+
+			world.DestroyWorld();
 		}
 
 		private static void WriteDebuggingInfo(EcoWorld world)
