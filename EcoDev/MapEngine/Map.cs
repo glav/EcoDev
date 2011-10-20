@@ -65,6 +65,9 @@ namespace EcoDev.Engine.MapEngine
 		public MapBlock Get(int x, int y, int z)
 		{
 			// TODO: Check map dimensions before returning a block. If exceeds, return null
+			if (x < 0 || y < 0 || z < 0 || x > (_widthInUnits - 1) || y > (_heightInUnits - 1) || z > (_depthInUnits - 1))
+				return new SolidBlock();
+
 			return _mapContainer[x, y, z];
 		}
 
@@ -152,7 +155,7 @@ namespace EcoDev.Engine.MapEngine
 			var xPosInValid = (x != 0 && x != (_widthInUnits-1));
 			var yPosInvalid = (y != 0 && y != (_heightInUnits-1));
 			var zPosInvalid = (z != 0 && z != (_depthInUnits-1));
-			if (xPosInValid || yPosInvalid || zPosInvalid)
+			if (xPosInValid && yPosInvalid && zPosInvalid)
 			{
 				return false;
 			}
