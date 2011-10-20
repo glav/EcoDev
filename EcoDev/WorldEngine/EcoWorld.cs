@@ -30,6 +30,7 @@ namespace EcoDev.Engine.WorldEngine
 				throw new ArgumentException("World Map cannot be NULL");
 			}
 			_worldMap = worldMap;
+			_worldMap.InitialiseMap();
 
 			if (inhabitants != null && inhabitants.Length > 0)
 			{
@@ -40,6 +41,7 @@ namespace EcoDev.Engine.WorldEngine
 		}
 
 		public Map WorldMap { get { return _worldMap; } }
+		public IEnumerable<LivingEntityWithQualities> Inhabitants{get { return _inhabitants; }}
 
 		public void AddPlayer(LivingEntityWithQualities player)
 		{
@@ -80,7 +82,7 @@ namespace EcoDev.Engine.WorldEngine
 
 		}
 
-		private void AddInhabitantsToMapIfRequired()
+		internal void AddInhabitantsToMapIfRequired()
 		{
 			if (_inhabitants != null && _inhabitants.Count > 0)
 			{
@@ -99,7 +101,7 @@ namespace EcoDev.Engine.WorldEngine
 			}
 		}
 
-		private void DetermineForwardFacingAxis(MapPosition entrance, LivingEntityWithQualities entity)
+		internal void DetermineForwardFacingAxis(MapPosition entrance, LivingEntityWithQualities entity)
 		{
 			if (entrance.xPosition == 0)
 			{
@@ -146,10 +148,10 @@ namespace EcoDev.Engine.WorldEngine
 
 		private void ActOnEntityActionResult(LivingEntityWithQualities entity, ActionResult actionResult)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 		}
 
-		private PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity)
+		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity)
 		{
 			//TODO: NEed to take into account sight attribute when populating surrounding positions/mapblocks of an entity
 			MapBlock currentPosition = _worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition);
@@ -161,13 +163,13 @@ namespace EcoDev.Engine.WorldEngine
 			switch (entity.ForwardFacingAxis)
 			{
 				case WorldAxis.PositiveX:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
+					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
 					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
 					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
 					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition-1,entity.PositionInMap.zPosition));
 					break;
 				case WorldAxis.PositiveY:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
+					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
 					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition-1,entity.PositionInMap.zPosition));
 					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition-1,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
 					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
@@ -175,13 +177,13 @@ namespace EcoDev.Engine.WorldEngine
 				case WorldAxis.PositiveZ:
 					break;
 				case WorldAxis.NegativeX:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
+					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
 					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
 					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition-1,entity.PositionInMap.zPosition));
 					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
 					break;
 				case WorldAxis.NegativeY:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition-1,entity.PositionInMap.zPosition));
+					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
 					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
 					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition+1,entity.PositionInMap.yPosition+1,entity.PositionInMap.zPosition));
 					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1,entity.PositionInMap.yPosition,entity.PositionInMap.zPosition));
@@ -192,11 +194,15 @@ namespace EcoDev.Engine.WorldEngine
 
 			var posContext = new PositionContext(currentPosition,fwdFacingBlocks.ToArray(),rearFacingBlocks.ToArray(),leftFacingBlocks.ToArray(),rightFacingBlocks.ToArray());
 			return posContext;
-
 		}
 
-		private MapPosition FindAnEntrance()
-		{
+		internal MapPosition FindAnEntrance()
+		{	
+			if (_worldMap.Entrances.Count() == 0)
+			{
+				throw new MapInvalidException("No entrances available in world or world not initialised");
+			}
+
 			if (_worldMap.Entrances.Count() == 1)
 			{
 				return _worldMap.Entrances.First();

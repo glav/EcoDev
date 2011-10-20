@@ -86,6 +86,18 @@ namespace EcoDev.UnitTests
 			map.Set(9, 9, 9, new MapExitBlock());
 
 			map.InitialiseMap();
+
+			map = new Map(10, 10, 10);
+			map.Set(5, 0, 0, new MapEntranceBlock());
+			map.Set(9, 9, 9, new MapExitBlock());
+
+			map.InitialiseMap();
+
+			map = new Map(10, 10, 10);
+			map.Set(5, 0, 0, new MapEntranceBlock());
+			map.Set(9, 9, 4, new MapExitBlock());
+
+			map.InitialiseMap();
 		}
 		
 
@@ -123,6 +135,17 @@ namespace EcoDev.UnitTests
 			var map = new Map(10, 10, 10);
 			map.Set(0, 0, 0, new MapEntranceBlock());
 			map.Set(8, 8, 8, new MapExitBlock());
+
+			try
+			{
+				map.InitialiseMap();
+				Assert.Fail("Map should not validate with an exit not on the outer edge of map.");
+			}
+			catch (MapInvalidException mex) { }
+
+			map = new Map(10, 10, 10);
+			map.Set(2, 2, 2, new MapEntranceBlock());
+			map.Set(9, 9, 9, new MapExitBlock());
 
 			try
 			{
