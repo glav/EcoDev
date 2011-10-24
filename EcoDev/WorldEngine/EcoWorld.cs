@@ -94,49 +94,13 @@ namespace EcoDev.Engine.WorldEngine
 						entity.Entity.World = this;
 						var entrance = FindAnEntrance();
 						entity.PositionInMap = entrance;
-						DetermineForwardFacingAxis(entrance, entity);
+						entity.ForwardFacingAxis = entrance.DetermineForwardFacingPositionBasedOnThisPosition(_worldMap.WidthInUnits, _worldMap.HeightInUnits, _worldMap.DepthInUnits);
 						PerformEntityAction(entity);
 					}
 				}
 			}
 		}
 
-		internal void DetermineForwardFacingAxis(MapPosition entrance, LivingEntityWithQualities entity)
-		{
-			if (entrance.xPosition == 0)
-			{
-				entity.ForwardFacingAxis = WorldAxis.PositiveX;
-				return;
-			}
-			if (entrance.xPosition == _worldMap.WidthInUnits - 1)
-			{
-				entity.ForwardFacingAxis = WorldAxis.NegativeX;
-				return;
-			}
-			if (entrance.yPosition == 0)
-			{
-				entity.ForwardFacingAxis = WorldAxis.PositiveY;
-				return;
-			}
-			if (entrance.yPosition == _worldMap.HeightInUnits - 1)
-			{
-				entity.ForwardFacingAxis = WorldAxis.NegativeY;
-				return;
-			}
-
-			if (entrance.zPosition == 0)
-			{
-				entity.ForwardFacingAxis = WorldAxis.PositiveZ;
-				return;
-			}
-			if (entrance.zPosition == _worldMap.DepthInUnits - 1)
-			{
-				entity.ForwardFacingAxis = WorldAxis.NegativeZ;
-				return;
-			}
-			entity.ForwardFacingAxis = WorldAxis.PositiveX;
-			return;
-		}
 
 		private void PerformEntityAction(LivingEntityWithQualities entity)
 		{

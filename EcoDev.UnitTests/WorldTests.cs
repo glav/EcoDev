@@ -37,37 +37,33 @@ namespace EcoDev.UnitTests
 
 			var world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
 			var entrance = world.FindAnEntrance();
-			player.ForwardFacingAxis = WorldAxis.NegativeZ; // This is definitely wrong
-			world.DetermineForwardFacingAxis(entrance, player);
+			var fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
 
-			Assert.AreEqual<WorldAxis>(WorldAxis.NegativeX, player.ForwardFacingAxis);
+			Assert.AreEqual<WorldAxis>(WorldAxis.NegativeX, fwdFacingResult);
 
 			map = new Map(10, 10, 1);
 			map.Set(0, 9, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
 			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
 			entrance = world.FindAnEntrance();
-			player.ForwardFacingAxis = WorldAxis.NegativeZ; // This is definitely wrong
-			world.DetermineForwardFacingAxis(entrance, player);
-			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, player.ForwardFacingAxis);
+			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
+			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, fwdFacingResult);
 
 			map = new Map(10, 10, 1);
 			map.Set(0, 0, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
 			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
 			entrance = world.FindAnEntrance();
-			player.ForwardFacingAxis = WorldAxis.NegativeZ; // This is definitely wrong
-			world.DetermineForwardFacingAxis(entrance, player);
-			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, player.ForwardFacingAxis);
+			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
+			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, fwdFacingResult);
 
 			map = new Map(10, 10, 1);
 			map.Set(4, 9, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
 			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
 			entrance = world.FindAnEntrance();
-			player.ForwardFacingAxis = WorldAxis.NegativeZ; // This is definitely wrong
-			world.DetermineForwardFacingAxis(entrance, player);
-			Assert.AreEqual<WorldAxis>(WorldAxis.NegativeY, player.ForwardFacingAxis);
+			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
+			Assert.AreEqual<WorldAxis>(WorldAxis.NegativeY, fwdFacingResult);
 		}
 
 		[TestMethod]
