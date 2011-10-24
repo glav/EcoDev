@@ -148,7 +148,22 @@ namespace EcoDev.Engine.WorldEngine
 
 		private void ActOnEntityActionResult(LivingEntityWithQualities entity, ActionResult actionResult)
 		{
+			var responseActionHandler = ActionResponseFactory.CreateActionResponseHandler(actionResult, entity);
+			try
+			{
+				responseActionHandler.ExecuteActionToPerform();
+			}
+			catch (Exception ex)
+			{
+				HandlePlayerCriticalError(entity);
+			}
 			//throw new NotImplementedException();
+		}
+
+		private void HandlePlayerCriticalError(LivingEntityWithQualities entity)
+		{
+			//TODO: May need to remove player from the world
+			throw new NotImplementedException();
 		}
 
 		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity)
