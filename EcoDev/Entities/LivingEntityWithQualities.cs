@@ -14,10 +14,12 @@ namespace EcoDev.Engine.Entities
 		{
 			Qualities = new LivingEntityQualities();
 			PositionInMap = new MapPosition();
+			IsDead = false;
 		}
 		public LivingEntity Entity { get; set; }
 		public LivingEntityQualities Qualities { get; set; }
 		public MapPosition PositionInMap { get; set; }
 		public WorldAxis ForwardFacingAxis { get; set; }
+		public bool IsDead { get; set; }
 	}
 }

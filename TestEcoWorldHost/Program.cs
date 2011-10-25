@@ -8,6 +8,7 @@ using EcoDev.Core.Common;
 using EcoDev.Core.Common.Actions;
 using EcoDev.Engine.MapEngine;
 using EcoDev.Core.Common.BuildingBlocks;
+using System.IO;
 
 namespace TestEcoWorldHost
 {
@@ -16,6 +17,7 @@ namespace TestEcoWorldHost
 		static void Main(string[] args)
 		{
 			var world = CreateWorld();
+			world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
 			var player = CreatePlayer();
 
 			WriteDebuggingInfo(world);
@@ -29,9 +31,19 @@ namespace TestEcoWorldHost
 			world.DestroyWorld();
 		}
 
+		static void world_DebugInformation(object sender, DebugInfoEventArgs e)
+		{
+			Console.WriteLine(e.DebugInformation);
+			using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
+			{
+				var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
+				file.Write(data, 0, data.Length);
+			}
+		}
+
 		private static void WriteDebuggingInfo(EcoWorld world)
 		{
-			System.IO.File.WriteAllText(".\\WorldDebug.txt", world.WorldMap.ToString());
+			System.IO.File.WriteAllText(".\\WorldMapDebug.txt", world.WorldMap.ToString());
 		}
 
 		private static LivingEntityWithQualities CreatePlayer()
