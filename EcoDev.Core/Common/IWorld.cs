@@ -9,5 +9,6 @@ namespace EcoDev.Core.Common
 	// world to be available
 	public interface IWorld
 	{
+		void WriteDebugInformation(string source, string message);
 	}
 }
