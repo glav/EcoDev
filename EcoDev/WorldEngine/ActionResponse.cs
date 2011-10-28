@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EcoDev.Engine.Entities;
+using EcoDev.Engine.MapEngine;
+using EcoDev.Core.Common.Actions;
 
 namespace EcoDev.Engine.WorldEngine
 {
 	internal abstract class ActionResponse
 	{
-		public LivingEntityWithQualities Entity { get; set; }
+		public LivingEntityWithQualities Inhabitant { get; set; }
+		public EcoWorld World { get; set; }
+		public ActionResult DecidedAction { get; set; }
+
 		protected abstract void HandleActionToPerform();
 		public void ExecuteActionToPerform()
 		{

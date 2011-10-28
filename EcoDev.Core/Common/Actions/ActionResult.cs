@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EcoDev.Core.Common.Actions
 {
-	public abstract class ActionResult
+	public class ActionResult
 	{
 		public ActionResult()
 		{

@@ -10,19 +10,10 @@ using System.Threading;
 using System.Diagnostics;
 using EcoDev.Core.Common.Maps;
 using EcoDev.Core.Common.Actions;
+using EcoDev.Core.Common.BuildingBlocks;
 
 namespace EcoDev.Engine.WorldEngine
 {
-	public class DebugInfoEventArgs : EventArgs
-	{
-		public DebugInfoEventArgs(string debugInformation)
-		{
-			DebugInformation = debugInformation;
-		}
-
-		public string DebugInformation { get; set; }
-	}
-
 	public class EcoWorld : IWorld
 	{
 		Map _worldMap;
@@ -30,9 +21,11 @@ namespace EcoDev.Engine.WorldEngine
 		List<LivingEntityWithQualities> _inhabitants = new List<LivingEntityWithQualities>();
 		string _worldName;
 		Task _worldTask = null;
-		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 5000;
+		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 2000;
+		public InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
 
 		public event EventHandler<DebugInfoEventArgs> DebugInformation;
+		public event EventHandler<EntityExitEventArgs> EntityExited;
 
 		public EcoWorld(string worldName, Map worldMap, LivingEntityWithQualities[] inhabitants)
 		{
@@ -62,7 +55,7 @@ namespace EcoDev.Engine.WorldEngine
 			_inhabitants.Add(player);
 		}
 
-		private void FireDebugInfoEvent(string debugInfo)
+		protected void FireDebugInfoEvent(string debugInfo)
 		{
 			if (DebugInformation != null)
 			{
@@ -71,30 +64,46 @@ namespace EcoDev.Engine.WorldEngine
 			}
 		}
 
+		protected void FireEntityExitedEvent(LivingEntityWithQualities entity)
+		{
+			if (EntityExited != null)
+			{
+				EntityExited(this, new EntityExitEventArgs(entity));
+			}
+		}
+
+		private void FireDebugInfoEvent(string debugInfo, params object[] args)
+		{
+			FireDebugInfoEvent(string.Format(debugInfo, args));
+		}
+
 		public void StartWorld()
 		{
-			FireDebugInfoEvent(string.Format("{0}************{0}World [{1}]{0}************{0}Starting World: '{1}' processing loop", Environment.NewLine, _worldName));
+			FireDebugInfoEvent("{0}************{0}World [{1}]{0}************{0}Starting World: '{1}' processing loop", Environment.NewLine, _worldName);
 
 			_worldTask = Task.Factory.StartNew(new Action(WorldProcessingTask), _tokenSource.Token);
 		}
 
 		public void DestroyWorld()
 		{
+			DebugInformation = null;
+
 			Stopwatch cancelTimer = new Stopwatch();
 			_tokenSource.Cancel();
 			while (!_worldTask.IsCompleted && cancelTimer.ElapsedMilliseconds < 2000)
 			{
 			}
 
-			if (!_worldTask.IsCompleted)
+			try
 			{
 				_worldTask.Dispose();
 			}
+			catch { }
 		}
 
 		internal void WorldProcessingTask()
 		{
-			FireDebugInfoEvent(string.Format("Starting World Processing: [{0}]", _worldName));
+			FireDebugInfoEvent("Starting World Processing: [{0}]", _worldName);
 
 			while (!_tokenSource.IsCancellationRequested)
 			{
@@ -112,6 +121,35 @@ namespace EcoDev.Engine.WorldEngine
 		private void CleanupWorld()
 		{
 			//TODO: Remove any dead players from world.
+			//TODO: Also remove any players who have found an exit.
+			//Note: Players who have found an exit will need to be attributed accordingly.
+			var deadPlayers = _inhabitants.Where(i => i.IsDead).ToList();
+			if (deadPlayers.Count > 0)
+			{
+				deadPlayers.ForEach(d =>
+					{
+						FireDebugInfoEvent("Removing Player [{0}] from World.", d.Entity.Name);
+						_inhabitants.Remove(d);
+					});
+			}
+
+			List<LivingEntityWithQualities> playersCompleted = new List<LivingEntityWithQualities>();
+			for (int cnt = 0; cnt < _inhabitants.Count; cnt++)
+			{
+				var inhabitant = _inhabitants[cnt];
+				var posCtxt = _positionEngine.ConstructPositionContextForEntity(inhabitant, _worldMap);
+				if (posCtxt.CurrentPosition is MapExitBlock)
+				{
+					playersCompleted.Add(inhabitant);
+				}
+
+			}
+			playersCompleted.ForEach(p =>
+			{
+				_inhabitants.Remove(p);
+				FireEntityExitedEvent(p);
+			});
+
 		}
 
 		internal void ProcessPlayers()
@@ -148,7 +186,7 @@ namespace EcoDev.Engine.WorldEngine
 					}
 				}
 			}
-			FireDebugInfoEvent(string.Format("Added {0} new inhabitants to world", addedCount));
+			FireDebugInfoEvent("Added {0} new inhabitants to world", addedCount);
 		}
 
 
@@ -159,8 +197,8 @@ namespace EcoDev.Engine.WorldEngine
 				return;
 			}
 
-			FireDebugInfoEvent(string.Format("Performing entity action on Entity:{0}", entity.Entity.Name));
-			var positionContext = ConstructPositionContextForEntity(entity);
+			FireDebugInfoEvent("Performing entity action on Entity:{0}", entity.Entity.Name);
+			var positionContext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
 			ActionContext context = new ActionContext(positionContext);
 
 			var asyncEngine = new AsyncActionExecutionEngine(entity, context);
@@ -173,17 +211,23 @@ namespace EcoDev.Engine.WorldEngine
 			else
 			{
 				//TODO: Mark entity as invalid and remove in garbage collection phase
-				FireDebugInfoEvent(string.Format("Player {0} threw exception. Marking as invalid and removing from world.", entity.Entity.Name));
+				FireDebugInfoEvent("Player {0} threw exception. Marking as invalid and removing from world.", entity.Entity.Name);
 			}
 		}
 
 		private void ActOnEntityActionResult(LivingEntityWithQualities entity, ActionResult actionResult)
 		{
-			FireDebugInfoEvent(string.Format("Acting on Entity:{0} Result, ActionResult:{1}", entity.Entity.Name, actionResult.DecidedAction));
-			var responseActionHandler = ActionResponseFactory.CreateActionResponseHandler(actionResult, entity);
+			FireDebugInfoEvent("Acting on Entity:{0} Result, ActionResult:{1}", entity.Entity.Name, actionResult.DecidedAction);
+			var responseActionHandler = ActionResponseFactory.CreateActionResponseHandler(actionResult, entity, this);
 			try
 			{
 				responseActionHandler.ExecuteActionToPerform();
+				var positionCOntext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
+				if (positionCOntext.CurrentPosition is MapExitBlock)
+				{
+					// Player has found an exit.
+					FireDebugInfoEvent("Inhabitant [{0}] has found an exit! Now exiting world.", entity.Entity.Name);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -198,50 +242,6 @@ namespace EcoDev.Engine.WorldEngine
 			throw new NotImplementedException();
 		}
 
-		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity)
-		{
-			//TODO: NEed to take into account sight attribute when populating surrounding positions/mapblocks of an entity
-			MapBlock currentPosition = _worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition);
-			var fwdFacingBlocks = new List<MapBlock>();
-			var rearFacingBlocks = new List<MapBlock>();
-			var leftFacingBlocks = new List<MapBlock>();
-			var rightFacingBlocks = new List<MapBlock>();
-
-			switch (entity.ForwardFacingAxis)
-			{
-				case WorldAxis.PositiveX:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					break;
-				case WorldAxis.PositiveY:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					break;
-				case WorldAxis.PositiveZ:
-					break;
-				case WorldAxis.NegativeX:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					break;
-				case WorldAxis.NegativeY:
-					fwdFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(_worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					break;
-				case WorldAxis.NegativeZ:
-					break;
-			}
-
-			var posContext = new PositionContext(currentPosition, fwdFacingBlocks.ToArray(), rearFacingBlocks.ToArray(), leftFacingBlocks.ToArray(), rightFacingBlocks.ToArray());
-			return posContext;
-		}
 
 		internal MapPosition FindAnEntrance()
 		{
@@ -266,6 +266,11 @@ namespace EcoDev.Engine.WorldEngine
 		{
 			string realMsg = string.Format("Source: [{0}]{1}  ->: {2}", source, Environment.NewLine, message);
 			FireDebugInfoEvent(realMsg);
+		}
+		public void WriteDebugInformation(string source, string message, params object[] args)
+		{
+			string substitutedMsg = string.Format(message, args);
+			WriteDebugInformation(source, substitutedMsg);
 		}
 	}
 }

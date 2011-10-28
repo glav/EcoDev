@@ -5,6 +5,7 @@ using System.Text;
 using EcoDev.Core.Common;
 using EcoDev.Core.Common.Actions;
 using EcoDev.Core.Common.BuildingBlocks;
+using EcoDev.Core.Common.Maps;
 
 namespace TestEcoWorldHost
 {
@@ -27,14 +28,15 @@ namespace TestEcoWorldHost
 				// move forward if we can
 				if (actionContext.Position.ForwardFacingPositions.Length > 0)
 				{
-					if (actionContext.Position.ForwardFacingPositions[0].Accessibility == MapBlockAccessibility.CannotGainEntryOrExit)
+					if (CheckAccessibilityOfMapBlock(actionContext.Position.ForwardFacingPositions[0]))
 					{
+						action.DirectionToMove = MovementDirection.Forward;
 						return action;
 					}
 				}
 				if (actionContext.Position.LeftFacingPositions.Length > 0)
 				{
-					if (actionContext.Position.LeftFacingPositions[0].Accessibility == MapBlockAccessibility.CannotGainEntryOrExit)
+					if (CheckAccessibilityOfMapBlock(actionContext.Position.LeftFacingPositions[0]))
 					{
 						action.DirectionToMove = MovementDirection.Left;
 						return action;
@@ -42,7 +44,7 @@ namespace TestEcoWorldHost
 				}
 				if (actionContext.Position.RightFacingPositions.Length > 0)
 				{
-					if (actionContext.Position.RightFacingPositions[0].Accessibility == MapBlockAccessibility.CannotGainEntryOrExit)
+					if (CheckAccessibilityOfMapBlock(actionContext.Position.RightFacingPositions[0]))
 					{
 						action.DirectionToMove = MovementDirection.Right;
 						return action;
@@ -50,7 +52,7 @@ namespace TestEcoWorldHost
 				}
 				if (actionContext.Position.RearFacingPositions.Length > 0)
 				{
-					if (actionContext.Position.RearFacingPositions[0].Accessibility == MapBlockAccessibility.CannotGainEntryOrExit)
+					if (CheckAccessibilityOfMapBlock(actionContext.Position.RearFacingPositions[0]))
 					{
 						action.DirectionToMove = MovementDirection.Back;
 						return action;
@@ -64,6 +66,15 @@ namespace TestEcoWorldHost
 				World.WriteDebugInformation("Player: "+ Name, string.Format("Player Generated exception: {0}",ex.Message));
 				throw ex;
 			}
+		}
+
+		private bool CheckAccessibilityOfMapBlock(MapBlock block)
+		{
+			if (block == null || block.Accessibility == MapBlockAccessibility.AllowEntry || block.Accessibility == MapBlockAccessibility.AllowExit || block.Accessibility == MapBlockAccessibility.AllowPotentialEntry)
+			{
+				return true;
+			}
+			return false;
 		}
 
 	}

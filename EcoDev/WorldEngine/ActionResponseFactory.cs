@@ -4,23 +4,24 @@ using System.Linq;
 using System.Text;
 using EcoDev.Core.Common.Actions;
 using EcoDev.Engine.Entities;
+using EcoDev.Engine.MapEngine;
 
 namespace EcoDev.Engine.WorldEngine
 {
 	internal static class ActionResponseFactory
 	{
-		static Dictionary<ActionToPerform, Func<LivingEntityWithQualities, ActionResponse>> _responseList
-					= new Dictionary<ActionToPerform, Func<LivingEntityWithQualities, ActionResponse>>();
+		static Dictionary<ActionToPerform, Func<LivingEntityWithQualities, EcoWorld , ActionResult, ActionResponse>> _responseList
+					= new Dictionary<ActionToPerform, Func<LivingEntityWithQualities, EcoWorld, ActionResult, ActionResponse>>();
 		
 		static ActionResponseFactory()
 		{
 			// Build up a list of ActionResponses
-			_responseList.Add( ActionToPerform.Move, (entity) => { return new MovementActionResponse() { Entity = entity }; });
+			_responseList.Add( ActionToPerform.Move, (entity,world, actionResult) => { return new MovementActionResponse() { Inhabitant = entity, World = world, DecidedAction = actionResult }; });
 		}
 
-		public static ActionResponse CreateActionResponseHandler(ActionResult actionResult, LivingEntityWithQualities entity)
+		public static ActionResponse CreateActionResponseHandler(ActionResult actionResult, LivingEntityWithQualities entity,EcoWorld world)
 		{
-			return _responseList[actionResult.DecidedAction](entity);
+			return _responseList[actionResult.DecidedAction](entity, world, actionResult);
 		}
 	}
 }
