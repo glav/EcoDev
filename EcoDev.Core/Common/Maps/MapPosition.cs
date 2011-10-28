@@ -16,6 +16,35 @@ namespace EcoDev.Core.Common.Maps
 			zPosition = z;
 		}
 
+		public MapPosition(MapPosition originalPosition)
+		{
+			xPosition = originalPosition.xPosition;
+			yPosition = originalPosition.yPosition;
+			zPosition = originalPosition.zPosition;
+		}
+
+		public override bool Equals(object obj)
+		{
+			var pos = obj as MapPosition;
+			if (pos == null)
+			{
+				return false;
+			}
+
+			return (pos.xPosition == xPosition && pos.yPosition == yPosition && pos.zPosition == zPosition);
+
+		}
+
+		public static bool operator ==(MapPosition arg1, MapPosition arg2)
+		{
+			return (arg1.xPosition == arg2.xPosition && arg1.yPosition == arg2.yPosition && arg1.zPosition == arg2.zPosition);
+		}
+
+		public static bool operator !=(MapPosition arg1, MapPosition arg2)
+		{
+			return (arg1.xPosition != arg2.xPosition || arg1.yPosition != arg2.yPosition || arg1.zPosition != arg2.zPosition);
+		}
+
 		public int xPosition { get; set; }
 		public int yPosition { get; set; }
 		public int zPosition { get; set; }
@@ -50,6 +79,11 @@ namespace EcoDev.Core.Common.Maps
 				return WorldAxis.NegativeZ;
 			}
 			return WorldAxis.PositiveX;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("X: {0}, Y:{1}, Z:{2}", xPosition, yPosition, zPosition);
 		}
 	}
 }

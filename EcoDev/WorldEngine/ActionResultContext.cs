@@ -10,10 +10,11 @@ namespace EcoDev.Engine.WorldEngine
 	{
 		public ActionResultContext()
 		{
-
+			ActionResult = new ActionResult();
 		}
 		public ActionResultContext(ActionResult actionResult)
 		{
+			ActionResult = new ActionResult();
 			ActionResult.DecidedAction = actionResult.DecidedAction;
 			ActionResult.DirectionToMove = actionResult.DirectionToMove;
 		}

@@ -18,6 +18,7 @@ namespace TestEcoWorldHost
 		{
 			var world = CreateWorld();
 			world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
+			world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
 			var player = CreatePlayer();
 
 			WriteDebuggingInfo(world);
@@ -31,9 +32,14 @@ namespace TestEcoWorldHost
 			world.DestroyWorld();
 		}
 
+		static void world_EntityExited(object sender, EntityExitEventArgs e)
+		{
+			Console.WriteLine("\nCongrats {0}! You have completed this world!\n", e.Inhabitant.Entity.Name);
+		}
+
 		static void world_DebugInformation(object sender, DebugInfoEventArgs e)
 		{
-			Console.WriteLine(e.DebugInformation);
+			Console.Write(e.DebugInformation);
 			using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
 			{
 				var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
