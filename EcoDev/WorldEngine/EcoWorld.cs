@@ -14,7 +14,7 @@ using EcoDev.Core.Common.BuildingBlocks;
 
 namespace EcoDev.Engine.WorldEngine
 {
-	public class EcoWorld : IWorld
+	public class EcoWorld : IWorld, IDisposable
 	{
 		Map _worldMap;
 		CancellationTokenSource _tokenSource;
@@ -23,13 +23,16 @@ namespace EcoDev.Engine.WorldEngine
 		Task _worldTask = null;
 		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 3000;
 		public InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
+		static object _debugLock = new object();
+		bool _enableDebug = false;
 
 		public event EventHandler<DebugInfoEventArgs> DebugInformation;
 		public event EventHandler<EntityExitEventArgs> EntityExited;
 
-		public EcoWorld(string worldName, Map worldMap, LivingEntityWithQualities[] inhabitants)
+		public EcoWorld(string worldName, Map worldMap, LivingEntityWithQualities[] inhabitants, bool enableDebug)
 		{
 			_worldName = worldName;
+			_enableDebug = enableDebug;
 
 			if (worldMap == null)
 			{
@@ -51,17 +54,26 @@ namespace EcoDev.Engine.WorldEngine
 
 		public void AddPlayer(LivingEntityWithQualities player)
 		{
-			player.Entity.World = this;
 			_inhabitants.Add(player);
+			AddInhabitantsToMap();
+
 		}
 
 		protected void FireDebugInfoEvent(string debugInfo)
 		{
-			if (DebugInformation != null)
+			if (DebugInformation != null && _enableDebug)
 			{
-				string fullInfo = string.Format("[{0} - {1}] {2}{3}", DateTime.Now.ToShortDateString(), DateTime.Now.ToShortTimeString(), debugInfo, Environment.NewLine);
-				DebugInformation(this, new DebugInfoEventArgs(fullInfo));
+				lock (_debugLock)
+				{
+					DebugInformation(this, new DebugInfoEventArgs(FormatDebugInformation(debugInfo)));
+				}
 			}
+		}
+
+		private string FormatDebugInformation(string debugInfo)
+		{
+			string fullInfo = string.Format("[{0} - {1}] {2}{3}", DateTime.Now.ToShortDateString(), DateTime.Now.ToString("hh:mm:ss"), debugInfo, Environment.NewLine);
+			return fullInfo;
 		}
 
 		protected void FireEntityExitedEvent(LivingEntityWithQualities entity)
@@ -107,10 +119,6 @@ namespace EcoDev.Engine.WorldEngine
 
 			while (!_tokenSource.IsCancellationRequested)
 			{
-				AddInhabitantsToMapIfRequired();
-				//TODO: Go through all players. If world == null, then place players at start and allow a movement
-
-				//TODO: then cycle through players/inhabitants and process movements
 				ProcessPlayers();
 
 				CleanupWorld();
@@ -165,7 +173,7 @@ namespace EcoDev.Engine.WorldEngine
 			while (timer.ElapsedMilliseconds < MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS) { }
 		}
 
-		internal void AddInhabitantsToMapIfRequired()
+		internal void AddInhabitantsToMap()
 		{
 			FireDebugInfoEvent("Adding inhabitants to map");
 			int addedCount = 0;
@@ -181,7 +189,6 @@ namespace EcoDev.Engine.WorldEngine
 						var entrance = FindAnEntrance();
 						entity.PositionInMap = entrance;
 						entity.ForwardFacingAxis = entrance.DetermineForwardFacingPositionBasedOnThisPosition(_worldMap.WidthInUnits, _worldMap.HeightInUnits, _worldMap.DepthInUnits);
-						PerformEntityAction(entity);
 						addedCount++;
 					}
 				}
@@ -264,13 +271,20 @@ namespace EcoDev.Engine.WorldEngine
 
 		public void WriteDebugInformation(string source, string message)
 		{
-			string realMsg = string.Format("Source: [{0}]{1}  ->: {2}", source, Environment.NewLine, message);
+			var part1 = FormatDebugInformation(string.Format("Source: [{0}]", source));
+			var part2 = FormatDebugInformation(string.Format("  ->: {0}", message));
+			string realMsg = string.Format("{0}{1}", part1, part2);
 			FireDebugInfoEvent(realMsg);
 		}
 		public void WriteDebugInformation(string source, string message, params object[] args)
 		{
 			string substitutedMsg = string.Format(message, args);
 			WriteDebugInformation(source, substitutedMsg);
+		}
+
+		public void Dispose()
+		{
+			DestroyWorld();
 		}
 	}
 }

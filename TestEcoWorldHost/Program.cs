@@ -9,33 +9,54 @@ using EcoDev.Core.Common.Actions;
 using EcoDev.Engine.MapEngine;
 using EcoDev.Core.Common.BuildingBlocks;
 using System.IO;
+using System.Timers;
 
 namespace TestEcoWorldHost
 {
 	class Program
 	{
+		static EcoWorld _world;
+		static Timer _playerTimer = new Timer();
+
 		static void Main(string[] args)
 		{
+			_playerTimer.Interval = 6000;  // add a 2nd player after 6 seconds
+			_playerTimer.Elapsed += new ElapsedEventHandler(playerTimer_Elapsed);
+			_playerTimer.Start();
+
 			if (File.Exists("WorldDebugInfo.log"))
 			{
 				File.Delete("WorldDebugInfo.log");
 			}
-			//var world = CreateWorld();
-			var world = CreateWorld2();
+			//_world = CreateWorld();
+			_world = CreateWorld2();
 
-			world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
-			world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
+			_world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
+			_world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
 			var player = CreatePlayer();
 
-			WriteDebuggingInfo(world);
+			WriteDebuggingInfo(_world);
 
-			world.AddPlayer(player);
-			world.StartWorld();
+			_world.AddPlayer(player);
+			_world.StartWorld();
 
 			Console.WriteLine("World Started. Hit ENTER to stop");
 			Console.ReadLine();
 
-			world.DestroyWorld();
+			_world.DestroyWorld();
+		}
+
+		static void playerTimer_Elapsed(object sender, ElapsedEventArgs e)
+		{
+			_playerTimer.Stop();
+			var player2 = new LivingEntityWithQualities();
+			player2.Qualities.Intelligence = 50;
+			player2.Qualities.Sight = 50;
+			player2.Qualities.Strength = 50;
+			player2.Qualities.Speed = 50;
+			player2.Entity = new Player2();
+
+			_world.AddPlayer(player2);
 		}
 
 		static void world_EntityExited(object sender, EntityExitEventArgs e)
@@ -84,7 +105,7 @@ namespace TestEcoWorldHost
 
 			map.InitialiseMap();
 
-			var world = new EcoWorld("TestWorld", map, null);
+			var world = new EcoWorld("TestWorld", map, null,true);
 			return world;
 		}
 		private static EcoWorld CreateWorld2()
@@ -105,7 +126,7 @@ namespace TestEcoWorldHost
 
 			map.InitialiseMap();
 
-			var world = new EcoWorld("TestWorld", map, null);
+			var world = new EcoWorld("TestWorld", map, null,true);
 			return world;
 		}
 	}

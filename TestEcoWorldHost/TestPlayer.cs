@@ -121,4 +121,16 @@ namespace TestEcoWorldHost
 		}
 
 	}
+
+	public class Player2 : TestPlayer
+	{
+		public Player2()
+		{
+			Name = "Tommy test";
+			LifeKey = Guid.NewGuid();
+			Size = new EntitySize() { Height = 1, Thickness = 1, Width = 1 };
+			Weight = 10;
+
+		}
+	}
 }
