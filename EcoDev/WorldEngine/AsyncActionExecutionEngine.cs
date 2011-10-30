@@ -15,6 +15,7 @@ namespace EcoDev.Engine.WorldEngine
 		LivingEntityWithQualities _entity;
 		ActionContext _context;
 		CancellationTokenSource _tokenSource = new CancellationTokenSource();
+		private static object _lockContext = new object();
 #if DEBUG
 		public const int MAX_MILLISECONDS_ALLOWED_FOR_ENTITY_DECISION = 2000;
 #else
@@ -31,17 +32,21 @@ namespace EcoDev.Engine.WorldEngine
 		{
 			var decisionTask = new Task<ActionResultContext>(() =>
 			{
-				ActionResultContext result;
-				try
+				lock (_lockContext)
 				{
-					result = new ActionResultContext(_entity.Entity.DecideActionToPerform(_context));
+					ActionResultContext result;
+					try
+					{
+						result = new ActionResultContext(_entity.Entity.DecideActionToPerform(_context));
+						_entity.Entity.PreviousAction = result.ActionResult;
+					}
+					catch (Exception ex)
+					{
+						result = new ActionResultContext() { ErrorException = ex };
+						_entity.IsDead = true;
+					}
+					return result;
 				}
-				catch (Exception ex)
-				{
-					result = new ActionResultContext() { ErrorException = ex };
-					_entity.IsDead = true;
-				}
-				return result;
 			}, _tokenSource.Token);
 
 			decisionTask.Start();

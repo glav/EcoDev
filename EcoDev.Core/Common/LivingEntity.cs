@@ -14,6 +14,7 @@ namespace EcoDev.Core.Common
 		}
 
 		public abstract ActionResult DecideActionToPerform(ActionContext actionContext);
+		public ActionResult PreviousAction { get; set; }
 
 		public override string ToString()
 		{

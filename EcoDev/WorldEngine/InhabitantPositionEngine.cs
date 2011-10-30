@@ -70,7 +70,7 @@ namespace EcoDev.Engine.WorldEngine
 					}
 					if (direction == MovementDirection.Back)
 					{
-						nextPosition.xPosition += ((entity.ForwardFacingAxis == WorldAxis.PositiveX) ? 1 : -1);
+						nextPosition.xPosition += ((entity.ForwardFacingAxis == WorldAxis.PositiveX) ? -1 : 1);
 					}
 					if (direction == MovementDirection.Left)
 					{
@@ -89,7 +89,7 @@ namespace EcoDev.Engine.WorldEngine
 					}
 					if (direction == MovementDirection.Back)
 					{
-						nextPosition.xPosition += ((entity.ForwardFacingAxis == WorldAxis.PositiveY) ? 1 : -1);
+						nextPosition.xPosition += ((entity.ForwardFacingAxis == WorldAxis.PositiveY) ? -1 : 1);
 					}
 					if (direction == MovementDirection.Left)
 					{

@@ -21,7 +21,7 @@ namespace EcoDev.Engine.WorldEngine
 		List<LivingEntityWithQualities> _inhabitants = new List<LivingEntityWithQualities>();
 		string _worldName;
 		Task _worldTask = null;
-		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 2000;
+		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 3000;
 		public InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
 
 		public event EventHandler<DebugInfoEventArgs> DebugInformation;
