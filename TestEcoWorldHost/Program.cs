@@ -16,7 +16,13 @@ namespace TestEcoWorldHost
 	{
 		static void Main(string[] args)
 		{
-			var world = CreateWorld();
+			if (File.Exists("WorldDebugInfo.log"))
+			{
+				File.Delete("WorldDebugInfo.log");
+			}
+			//var world = CreateWorld();
+			var world = CreateWorld2();
+
 			world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
 			world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
 			var player = CreatePlayer();
@@ -75,6 +81,27 @@ namespace TestEcoWorldHost
 			// Setup some barrier blocks
 			map.Set(3, 4, 0, new SolidBlock());
 			map.Set(6, 7, 0, new SolidBlock());
+
+			map.InitialiseMap();
+
+			var world = new EcoWorld("TestWorld", map, null);
+			return world;
+		}
+		private static EcoWorld CreateWorld2()
+		{
+			Map map = new Map(10, 10, 1);
+
+			// setup entry and exit points
+			map.Set(0, 0, 0, new MapEntranceBlock());
+			map.Set(9, 9, 0, new MapExitBlock());
+
+			// Setup some barrier blocks
+			map.Set(3, 4, 0, new SolidBlock());
+			map.Set(6, 7, 0, new SolidBlock());
+			map.Set(3, 0, 0, new SolidBlock());
+			map.Set(3, 1, 0, new SolidBlock());
+			map.Set(3, 2, 0, new SolidBlock());
+			map.Set(2, 2, 0, new SolidBlock());
 
 			map.InitialiseMap();
 

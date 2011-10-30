@@ -25,6 +25,49 @@ namespace TestEcoWorldHost
 			{
 				var action = new MovementAction();
 
+				// Keep going in the same direction if possible
+				if (PreviousAction != null)
+				{
+					MapBlock nextBlockBAsedOnPreviousMovement = null;
+					switch (PreviousAction.DirectionToMove)
+					{
+						case MovementDirection.Forward:
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.ForwardFacingPositions[0];
+							break;
+						case MovementDirection.Back:
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.RearFacingPositions[0];
+							break;
+						case MovementDirection.Left:
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.LeftFacingPositions[0];
+							break;
+						case MovementDirection.Right:
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.RightFacingPositions[0];
+							break;
+					}
+					World.WriteDebugInformation(Name, string.Format("Attempting to move {0} based on previous action to block {1}", PreviousAction.DirectionToMove, nextBlockBAsedOnPreviousMovement != null ? nextBlockBAsedOnPreviousMovement.GetType().ToString() : "Empty"));
+					
+					
+					// If we were moving back, then try going left or right first
+					if (PreviousAction.DirectionToMove == MovementDirection.Back)
+					{
+						if (CheckAccessibilityOfMapBlock(actionContext.Position.LeftFacingPositions[0]))
+						{
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.LeftFacingPositions[0];
+							action.DirectionToMove = MovementDirection.Left;
+							return action;
+						}
+					}
+					// If we can keep moving in the same direction, then do it.
+					// Elselet it flow through to normal directional logic
+					if (CheckAccessibilityOfMapBlock(nextBlockBAsedOnPreviousMovement))
+					{
+						action.DirectionToMove = PreviousAction.DirectionToMove;
+
+						World.WriteDebugInformation(Name,string.Format("Moving {0} based on previous action", action.DirectionToMove));
+						return action;
+					}
+				}
+
 				// move forward if we can
 				if (actionContext.Position.ForwardFacingPositions.Length > 0)
 				{
@@ -42,19 +85,19 @@ namespace TestEcoWorldHost
 						return action;
 					}
 				}
-				if (actionContext.Position.RightFacingPositions.Length > 0)
-				{
-					if (CheckAccessibilityOfMapBlock(actionContext.Position.RightFacingPositions[0]))
-					{
-						action.DirectionToMove = MovementDirection.Right;
-						return action;
-					}
-				}
 				if (actionContext.Position.RearFacingPositions.Length > 0)
 				{
 					if (CheckAccessibilityOfMapBlock(actionContext.Position.RearFacingPositions[0]))
 					{
 						action.DirectionToMove = MovementDirection.Back;
+						return action;
+					}
+				}
+				if (actionContext.Position.RightFacingPositions.Length > 0)
+				{
+					if (CheckAccessibilityOfMapBlock(actionContext.Position.RightFacingPositions[0]))
+					{
+						action.DirectionToMove = MovementDirection.Right;
 						return action;
 					}
 				}
