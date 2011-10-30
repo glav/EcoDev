@@ -35,7 +35,7 @@ namespace EcoDev.UnitTests
 
 			var player = GetPlayer();
 
-			var world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
+			var world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player },true);
 			var entrance = world.FindAnEntrance();
 			var fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
 
@@ -44,7 +44,7 @@ namespace EcoDev.UnitTests
 			map = new Map(10, 10, 1);
 			map.Set(0, 9, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
-			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
+			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player },true);
 			entrance = world.FindAnEntrance();
 			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
 			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, fwdFacingResult);
@@ -52,7 +52,7 @@ namespace EcoDev.UnitTests
 			map = new Map(10, 10, 1);
 			map.Set(0, 0, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
-			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
+			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player },true);
 			entrance = world.FindAnEntrance();
 			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
 			Assert.AreEqual<WorldAxis>(WorldAxis.PositiveX, fwdFacingResult);
@@ -60,7 +60,7 @@ namespace EcoDev.UnitTests
 			map = new Map(10, 10, 1);
 			map.Set(4, 9, 0, new MapEntranceBlock());
 			map.Set(9, 4, 0, new MapExitBlock());
-			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
+			world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player },true);
 			entrance = world.FindAnEntrance();
 			fwdFacingResult = entrance.DetermineForwardFacingPositionBasedOnThisPosition(map.WidthInUnits, map.HeightInUnits, map.DepthInUnits);
 			Assert.AreEqual<WorldAxis>(WorldAxis.NegativeY, fwdFacingResult);
@@ -74,7 +74,7 @@ namespace EcoDev.UnitTests
 
 			Assert.IsNotNull(world);
 
-			world.AddInhabitantsToMapIfRequired();
+			world.AddInhabitantsToMap();
 
 			var playerInWorld = world.Inhabitants.First();
 			var posContext = positionEngine.ConstructPositionContextForEntity(playerInWorld,world.WorldMap);
@@ -108,7 +108,7 @@ namespace EcoDev.UnitTests
 
 			var player = GetPlayer();
 
-			var world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player });
+			var world = new EcoWorld("test", map, new LivingEntityWithQualities[] { player },true);
 
 			return world;
 		}

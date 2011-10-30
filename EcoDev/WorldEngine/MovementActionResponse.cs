@@ -71,9 +71,6 @@ namespace EcoDev.Engine.WorldEngine
 		private MapBlock GetPotentialBlockToMoveToInMap(PositionContext positionCtxt)
 		{
 			MapBlock blockToMoveTo = null;
-			// We recalc this so we get the proper co-ordinates of the player.
-			// also, if the player tries to manipulate their own PositionContext, we dont
-			// want some bogus values stuffing up our movement and world calculations
 			switch (DecidedAction.DirectionToMove)
 			{
 				case MovementDirection.Forward:
