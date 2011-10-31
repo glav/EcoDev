@@ -21,13 +21,14 @@ namespace EcoDev.Engine.WorldEngine
 		List<LivingEntityWithQualities> _inhabitants = new List<LivingEntityWithQualities>();
 		string _worldName;
 		Task _worldTask = null;
-		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 3000;
+		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 1000;
 		public InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
 		static object _debugLock = new object();
 		bool _enableDebug = false;
 
 		public event EventHandler<DebugInfoEventArgs> DebugInformation;
 		public event EventHandler<EntityExitEventArgs> EntityExited;
+		public event EventHandler<InhabitantActionEventArgs> InhabitantPerformedAction;
 
 		public EcoWorld(string worldName, Map worldMap, LivingEntityWithQualities[] inhabitants, bool enableDebug)
 		{
@@ -67,6 +68,17 @@ namespace EcoDev.Engine.WorldEngine
 				{
 					DebugInformation(this, new DebugInfoEventArgs(FormatDebugInformation(debugInfo)));
 				}
+			}
+		}
+
+		protected void FireInhabitantPerformedActionEvent(ActionToPerform actionPerformed, MovementDirection directionMoved, MapPosition positionInMap)
+		{
+			if (InhabitantPerformedAction != null)
+			{
+				Task.Factory.StartNew(() =>
+				{
+					InhabitantPerformedAction(this, new InhabitantActionEventArgs(actionPerformed, directionMoved, positionInMap));
+				});
 			}
 		}
 
@@ -214,6 +226,7 @@ namespace EcoDev.Engine.WorldEngine
 			if (result.ErrorException == null)
 			{
 				ActOnEntityActionResult(entity, result.ActionResult);
+				FireInhabitantPerformedActionEvent(result.ActionResult.DecidedAction, result.ActionResult.DirectionToMove, entity.PositionInMap.Clone());
 			}
 			else
 			{
