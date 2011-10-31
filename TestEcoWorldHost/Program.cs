@@ -10,13 +10,15 @@ using EcoDev.Engine.MapEngine;
 using EcoDev.Core.Common.BuildingBlocks;
 using System.IO;
 using System.Timers;
+using EcoDev.Visualisation.Basic;
 
 namespace TestEcoWorldHost
 {
 	class Program
 	{
-		static EcoWorld _world;
+		static EcoDev.Engine.WorldEngine.EcoWorld _world;
 		static Timer _playerTimer = new Timer();
+		static VisualisationEngine _visualiser;
 
 		static void Main(string[] args)
 		{
@@ -29,10 +31,15 @@ namespace TestEcoWorldHost
 				File.Delete("WorldDebugInfo.log");
 			}
 			//_world = CreateWorld();
-			_world = CreateWorld2();
+			//_world = CreateWorld2();
+			_world = CreateWorld3();
+
+			_visualiser = new VisualisationEngine(_world);
 
 			_world.DebugInformation += new EventHandler<DebugInfoEventArgs>(world_DebugInformation);
 			_world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
+			_world.InhabitantPerformedAction += new EventHandler<InhabitantActionEventArgs>(_world_InhabitantPerformedAction);
+			
 			var player = CreatePlayer();
 
 			WriteDebuggingInfo(_world);
@@ -41,9 +48,16 @@ namespace TestEcoWorldHost
 			_world.StartWorld();
 
 			Console.WriteLine("World Started. Hit ENTER to stop");
+			_visualiser.StartMapRendering();
 			Console.ReadLine();
 
+			_visualiser.StopMapRendering();
 			_world.DestroyWorld();
+		}
+
+		static void _world_InhabitantPerformedAction(object sender, InhabitantActionEventArgs e)
+		{
+			//throw new NotImplementedException();
 		}
 
 		static void playerTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -66,15 +80,17 @@ namespace TestEcoWorldHost
 
 		static void world_DebugInformation(object sender, DebugInfoEventArgs e)
 		{
-			Console.Write(e.DebugInformation);
-			using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
-			{
-				var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
-				file.Write(data, 0, data.Length);
-			}
+			return;
+
+			//Console.Write(e.DebugInformation);
+			//using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
+			//{
+			//    var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
+			//    file.Write(data, 0, data.Length);
+			//}
 		}
 
-		private static void WriteDebuggingInfo(EcoWorld world)
+		private static void WriteDebuggingInfo(EcoDev.Engine.WorldEngine.EcoWorld world)
 		{
 			System.IO.File.WriteAllText(".\\WorldMapDebug.txt", world.WorldMap.ToString());
 		}
@@ -91,7 +107,7 @@ namespace TestEcoWorldHost
 			return player;
 		}
 
-		private static EcoWorld CreateWorld()
+		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld()
 		{
 			Map map = new Map(10, 10, 1);
 			
@@ -105,10 +121,10 @@ namespace TestEcoWorldHost
 
 			map.InitialiseMap();
 
-			var world = new EcoWorld("TestWorld", map, null,true);
+			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
 			return world;
 		}
-		private static EcoWorld CreateWorld2()
+		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld2()
 		{
 			Map map = new Map(10, 10, 1);
 
@@ -126,7 +142,32 @@ namespace TestEcoWorldHost
 
 			map.InitialiseMap();
 
-			var world = new EcoWorld("TestWorld", map, null,true);
+			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
+			return world;
+		}
+		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld3()
+		{
+			Map map = new Map(20, 20, 1);
+
+			// setup entry and exit points
+			map.Set(0, 0, 0, new MapEntranceBlock());
+			map.Set(19, 19, 0, new MapExitBlock());
+
+			// Setup some barrier blocks
+			map.Set(3, 4, 0, new SolidBlock());
+			map.Set(6, 7, 0, new SolidBlock());
+			map.Set(3, 0, 0, new SolidBlock());
+			map.Set(3, 1, 0, new SolidBlock());
+			map.Set(3, 2, 0, new SolidBlock());
+			map.Set(2, 2, 0, new SolidBlock());
+			map.Set(5, 9, 0, new SolidBlock());
+			map.Set(5, 19, 0, new SolidBlock());
+			map.Set(14, 19, 0, new SolidBlock());
+			map.Set(14, 18, 0, new SolidBlock());
+
+			map.InitialiseMap();
+
+			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
 			return world;
 		}
 	}

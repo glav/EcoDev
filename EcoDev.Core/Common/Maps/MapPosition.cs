@@ -23,6 +23,11 @@ namespace EcoDev.Core.Common.Maps
 			zPosition = originalPosition.zPosition;
 		}
 
+		public MapPosition Clone()
+		{
+			return new MapPosition(this);
+		}
+
 		public override bool Equals(object obj)
 		{
 			var pos = obj as MapPosition;
