@@ -56,6 +56,12 @@ namespace TestEcoWorldHost
 							action.DirectionToMove = MovementDirection.Left;
 							return action;
 						}
+						if (CheckAccessibilityOfMapBlock(actionContext.Position.RightFacingPositions[0]))
+						{
+							nextBlockBAsedOnPreviousMovement = actionContext.Position.RightFacingPositions[0];
+							action.DirectionToMove = MovementDirection.Right;
+							return action;
+						}
 					}
 					// If we can keep moving in the same direction, then do it.
 					// Elselet it flow through to normal directional logic
@@ -130,7 +136,7 @@ namespace TestEcoWorldHost
 			LifeKey = Guid.NewGuid();
 			Size = new EntitySize() { Height = 1, Thickness = 1, Width = 1 };
 			Weight = 10;
-
 		}
+
 	}
 }

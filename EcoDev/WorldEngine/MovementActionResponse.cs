@@ -17,6 +17,20 @@ namespace EcoDev.Engine.WorldEngine
 			var positionCtxt = _positionEngine.ConstructPositionContextForEntity(Inhabitant,World.WorldMap);
 			MapBlock blockToMoveTo = GetPotentialBlockToMoveToInMap(positionCtxt);
 
+			int relativeSpeed = Math.Max((int)(Inhabitant.Qualities.Speed / (byte.MaxValue / 3)),1);
+			bool canMove = CanBlockBeMovedTo(blockToMoveTo);
+
+			if (canMove)
+			{
+				if (NoPlayersCurrentlyOccupyPosition())
+				{
+					MovePlayerToBlockInRequestedDirection();
+				}
+			}
+		}
+
+		private bool CanBlockBeMovedTo(MapBlock blockToMoveTo)
+		{
 			bool canMove = false;
 			if (blockToMoveTo == null)
 			{
@@ -27,19 +41,13 @@ namespace EcoDev.Engine.WorldEngine
 				if (blockToMoveTo is MapExitBlock)
 				{
 					canMove = true;
-				} else if (blockToMoveTo.IsUnmoveable || blockToMoveTo is SolidBlock)
+				}
+				else if (blockToMoveTo.IsUnmoveable || blockToMoveTo is SolidBlock)
 				{
 					canMove = false;
 				}
 			}
-
-			if (canMove)
-			{
-				if (NoPlayersCurrentlyOccupyPosition())
-				{
-					MovePlayerToBlockInRequestedDirection();
-				}
-			}
+			return canMove;
 		}
 
 		private bool NoPlayersCurrentlyOccupyPosition()
@@ -74,16 +82,20 @@ namespace EcoDev.Engine.WorldEngine
 			switch (DecidedAction.DirectionToMove)
 			{
 				case MovementDirection.Forward:
-					blockToMoveTo = positionCtxt.ForwardFacingPositions[0];
+					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.ForwardFacingPositions);
+					//blockToMoveTo = positionCtxt.ForwardFacingPositions[0];
 					break;
 				case MovementDirection.Back:
-					blockToMoveTo = positionCtxt.RearFacingPositions[0];
+					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.RearFacingPositions);
+					//blockToMoveTo = positionCtxt.RearFacingPositions[0];
 					break;
 				case MovementDirection.Left:
-					blockToMoveTo = positionCtxt.LeftFacingPositions[0];
+					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.LeftFacingPositions);
+					//blockToMoveTo = positionCtxt.LeftFacingPositions[0];
 					break;
 				case MovementDirection.Right:
-					blockToMoveTo = positionCtxt.RightFacingPositions[0];
+					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.RightFacingPositions);
+					//blockToMoveTo = positionCtxt.RightFacingPositions[0];
 					break;
 				case MovementDirection.Up:
 					throw new NotImplementedException("Up movement not handled yet");
@@ -91,6 +103,30 @@ namespace EcoDev.Engine.WorldEngine
 				case MovementDirection.Down:
 					throw new NotImplementedException("Down movement not handled yet");
 					break;
+			}
+			return blockToMoveTo;
+		}
+
+		private MapBlock GetBlockToMoveToBasedOnSpeed(MapBlock[] positionsAlongAxisToMoveTo)
+		{
+			int relativeSpeed = (int)(Inhabitant.Qualities.Speed / (byte.MaxValue/3));
+			int indexOfBlockArray = 0 + relativeSpeed;
+			if (positionsAlongAxisToMoveTo.Length < (indexOfBlockArray+1))
+			{
+				indexOfBlockArray = positionsAlongAxisToMoveTo.Length-1;
+			}
+			var blockToMoveTo = positionsAlongAxisToMoveTo[indexOfBlockArray];
+			if (!CanBlockBeMovedTo(blockToMoveTo) && indexOfBlockArray > 0)
+			{
+				while (indexOfBlockArray != 0)
+				{
+					indexOfBlockArray--;
+					blockToMoveTo = positionsAlongAxisToMoveTo[indexOfBlockArray];
+					if (CanBlockBeMovedTo(blockToMoveTo))
+					{
+						break;
+					}
+				}
 			}
 			return blockToMoveTo;
 		}

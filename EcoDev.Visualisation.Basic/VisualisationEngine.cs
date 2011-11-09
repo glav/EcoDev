@@ -17,12 +17,12 @@ namespace EcoDev.Visualisation.Basic
 		public Dictionary<Guid,LivingEntityWithQualities> CurrentPlayers { get { return _currentPlayers; } }
 		private CancellationTokenSource _tokenSource = new CancellationTokenSource();
 		private EcoWorld _world;
-		ConsoleColor _originalConsoleColor;
 		ConsoleColor _edgeColor = ConsoleColor.Black;
 		ConsoleColor _playerColor = ConsoleColor.Yellow;
 		ConsoleColor _solidBlockColor = ConsoleColor.DarkRed;
 		ConsoleColor _entranceColor = ConsoleColor.Green;
 		ConsoleColor _exitColor = ConsoleColor.Magenta;
+		ConsoleColor _backgroundColor = ConsoleColor.DarkGray;
 
 		public VisualisationEngine(EcoWorld world)
 		{
@@ -49,7 +49,10 @@ namespace EcoDev.Visualisation.Basic
 
 		private void DrawMap()
 		{
-			_originalConsoleColor = Console.ForegroundColor;
+			var originalConsoleColor = Console.ForegroundColor;
+			var originalBackgroundColor = Console.BackgroundColor;
+
+			Console.BackgroundColor = _backgroundColor;
 			Console.CursorLeft = 0;
 			Console.CursorTop = 0;
 
@@ -111,7 +114,8 @@ namespace EcoDev.Visualisation.Basic
 				Console.Write("{0}", Environment.NewLine);
 			}
 
-			Console.ForegroundColor = _originalConsoleColor;
+			Console.ForegroundColor = originalConsoleColor;
+			Console.BackgroundColor = originalBackgroundColor;
 		}
 
 		private bool IsPlayerAtThisPosition(int xPos, int yPos, int zPos)

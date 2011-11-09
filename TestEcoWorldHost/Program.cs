@@ -65,7 +65,7 @@ namespace TestEcoWorldHost
 			_playerTimer.Stop();
 			var player2 = new LivingEntityWithQualities();
 			player2.Qualities.Intelligence = 50;
-			player2.Qualities.Sight = 50;
+			player2.Qualities.Sight = 150;
 			player2.Qualities.Strength = 50;
 			player2.Qualities.Speed = 50;
 			player2.Entity = new Player2();
@@ -80,14 +80,12 @@ namespace TestEcoWorldHost
 
 		static void world_DebugInformation(object sender, DebugInfoEventArgs e)
 		{
-			return;
-
 			//Console.Write(e.DebugInformation);
-			//using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
-			//{
-			//    var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
-			//    file.Write(data, 0, data.Length);
-			//}
+			using (var file = File.Open("WorldDebugInfo.log", FileMode.Append))
+			{
+			    var data = ASCIIEncoding.ASCII.GetBytes(e.DebugInformation);
+			    file.Write(data, 0, data.Length);
+			}
 		}
 
 		private static void WriteDebuggingInfo(EcoDev.Engine.WorldEngine.EcoWorld world)

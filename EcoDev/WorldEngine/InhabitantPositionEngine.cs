@@ -14,7 +14,8 @@ namespace EcoDev.Engine.WorldEngine
 	{
 		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity, Map worldMap)
 		{
-			//TODO: NEed to take into account sight attribute when populating surrounding positions/mapblocks of an entity
+			int relativeSight = (int)(entity.Qualities.Sight / (byte.MaxValue / 3));
+
 			MapBlock currentPosition = worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition);
 			var fwdFacingBlocks = new List<MapBlock>();
 			var rearFacingBlocks = new List<MapBlock>();
@@ -24,30 +25,46 @@ namespace EcoDev.Engine.WorldEngine
 			switch (entity.ForwardFacingAxis)
 			{
 				case WorldAxis.PositiveX:
-					fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
+					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
+					{
+						int relativePos = 1 + blockCnt;
+						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+					}
 					break;
 				case WorldAxis.PositiveY:
-					fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
+					{
+						int relativePos = 1 + blockCnt;
+						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+					}
 					break;
 				case WorldAxis.PositiveZ:
 					break;
 				case WorldAxis.NegativeX:
-					fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
+					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
+					{
+						int relativePos = 1 + blockCnt;
+						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+					}
 					break;
 				case WorldAxis.NegativeY:
-					fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - 1, entity.PositionInMap.zPosition));
-					rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + 1, entity.PositionInMap.yPosition + 1, entity.PositionInMap.zPosition));
-					rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - 1, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
+					{
+						int relativePos = 1 + blockCnt;
+						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+					}
 					break;
 				case WorldAxis.NegativeZ:
 					break;
