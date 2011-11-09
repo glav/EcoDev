@@ -67,7 +67,7 @@ namespace TestEcoWorldHost
 			player2.Qualities.Intelligence = 50;
 			player2.Qualities.Sight = 150;
 			player2.Qualities.Strength = 50;
-			player2.Qualities.Speed = 50;
+			player2.Qualities.Speed = 150;
 			player2.Entity = new Player2();
 
 			_world.AddPlayer(player2);

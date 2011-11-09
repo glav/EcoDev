@@ -17,6 +17,22 @@ namespace EcoDev.Core.Common
 		public byte Strength { get; set; }
 		public byte Reflexes { get; set; }
 		public byte Agility { get; set; }
+		
+		public int RelativeSpeed
+		{
+			get
+			{
+				return Math.Max((int)(Speed / (byte.MaxValue / 3)), 1);
+			}
+		}
+
+		public int RelativeSight
+		{
+			get
+			{
+				return (int)(entity.Qualities.Sight / (byte.MaxValue / 3));
+			}
+		}
 
 		protected void SetQualities(LivingEntityQualities entityQualities)
 		{

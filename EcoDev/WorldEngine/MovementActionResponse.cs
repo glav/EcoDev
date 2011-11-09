@@ -17,7 +17,7 @@ namespace EcoDev.Engine.WorldEngine
 			var positionCtxt = _positionEngine.ConstructPositionContextForEntity(Inhabitant,World.WorldMap);
 			MapBlock blockToMoveTo = GetPotentialBlockToMoveToInMap(positionCtxt);
 
-			int relativeSpeed = Math.Max((int)(Inhabitant.Qualities.Speed / (byte.MaxValue / 3)),1);
+			int relativeSpeed = Inhabitant.Qualities.RelativeSpeed;
 			bool canMove = CanBlockBeMovedTo(blockToMoveTo);
 
 			if (canMove)
@@ -109,7 +109,7 @@ namespace EcoDev.Engine.WorldEngine
 
 		private MapBlock GetBlockToMoveToBasedOnSpeed(MapBlock[] positionsAlongAxisToMoveTo)
 		{
-			int relativeSpeed = (int)(Inhabitant.Qualities.Speed / (byte.MaxValue/3));
+			int relativeSpeed = Inhabitant.Qualities.RelativeSpeed;
 			int indexOfBlockArray = 0 + relativeSpeed;
 			if (positionsAlongAxisToMoveTo.Length < (indexOfBlockArray+1))
 			{

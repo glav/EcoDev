@@ -14,7 +14,7 @@ namespace EcoDev.Engine.WorldEngine
 	{
 		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity, Map worldMap)
 		{
-			int relativeSight = (int)(entity.Qualities.Sight / (byte.MaxValue / 3));
+			int relativeSight = entity.Qualities.RelativeSight;
 
 			MapBlock currentPosition = worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition);
 			var fwdFacingBlocks = new List<MapBlock>();
