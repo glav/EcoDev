@@ -7,16 +7,16 @@ namespace EcoDev.Core.Common
 {
 	public class LivingEntityQualities
 	{
-		public double Intelligence { get; set; }
-		public double Sight { get; set; }
-		public double Hearing { get; set; }
-		public double Touch { get; set; }
-		public double Intuition { get; set; }
-		public double Stamina { get; set; }
-		public double Speed { get; set; }
-		public double Strength { get; set; }
-		public double Reflexes { get; set; }
-		public double Agility { get; set; }
+		public byte Intelligence { get; set; }
+		public byte Sight { get; set; }
+		public byte Hearing { get; set; }
+		public byte Touch { get; set; }
+		public byte Intuition { get; set; }
+		public byte Stamina { get; set; }
+		public byte Speed { get; set; } // Min 1, max 255 - 3 levels (0-85 = move 1 block, 86-170 = move 2 space, 171-255 = move 3 spaces
+		public byte Strength { get; set; }
+		public byte Reflexes { get; set; }
+		public byte Agility { get; set; }
 
 		protected void SetQualities(LivingEntityQualities entityQualities)
 		{
