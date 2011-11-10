@@ -139,4 +139,15 @@ namespace TestEcoWorldHost
 		}
 
 	}
+	public class Player3 : TestPlayer
+	{
+		public Player3()
+		{
+			Name = "Funky Chicken";
+			LifeKey = Guid.NewGuid();
+			Size = new EntitySize() { Height = 1, Thickness = 1, Width = 1 };
+			Weight = 10;
+		}
+
+	}
 }

@@ -22,17 +22,16 @@ namespace TestEcoWorldHost
 
 		static void Main(string[] args)
 		{
-			_playerTimer.Interval = 6000;  // add a 2nd player after 6 seconds
-			_playerTimer.Elapsed += new ElapsedEventHandler(playerTimer_Elapsed);
-			_playerTimer.Start();
 
 			if (File.Exists("WorldDebugInfo.log"))
 			{
 				File.Delete("WorldDebugInfo.log");
 			}
-			//_world = CreateWorld();
-			//_world = CreateWorld2();
-			_world = CreateWorld3();
+			//_world = StartReallySimpleWorld();
+			//_world = StartModeratelyComplexWorld();
+
+			//_world = StartMuchMoreComplexWorld();
+			_world = StartVeryComplexMultiPlayerWorld();
 
 			_visualiser = new VisualisationEngine(_world);
 
@@ -40,6 +39,7 @@ namespace TestEcoWorldHost
 			_world.EntityExited += new EventHandler<EntityExitEventArgs>(world_EntityExited);
 			_world.InhabitantPerformedAction += new EventHandler<InhabitantActionEventArgs>(_world_InhabitantPerformedAction);
 			
+			// Our initial player
 			var player = CreatePlayer();
 
 			WriteDebuggingInfo(_world);
@@ -55,6 +55,7 @@ namespace TestEcoWorldHost
 			_world.DestroyWorld();
 		}
 
+
 		static void _world_InhabitantPerformedAction(object sender, InhabitantActionEventArgs e)
 		{
 			//throw new NotImplementedException();
@@ -67,10 +68,30 @@ namespace TestEcoWorldHost
 			player2.Qualities.Intelligence = 50;
 			player2.Qualities.Sight = 150;
 			player2.Qualities.Strength = 50;
-			player2.Qualities.Speed = 150;
+			player2.Qualities.Speed = 180;
 			player2.Entity = new Player2();
 
 			_world.AddPlayer(player2);
+		}
+
+		static void playerTimer_Elapsed_ForReallyComplexWorld(object sender, ElapsedEventArgs e)
+		{
+			_playerTimer.Stop();
+			var player2 = new LivingEntityWithQualities();
+			player2.Qualities.Intelligence = 50;
+			player2.Qualities.Sight = 150;
+			player2.Qualities.Strength = 50;
+			player2.Qualities.Speed = 90;
+			player2.Entity = new Player2();
+			var player3 = new LivingEntityWithQualities();
+			player3.Qualities.Intelligence = 50;
+			player3.Qualities.Sight = 150;
+			player3.Qualities.Strength = 50;
+			player3.Qualities.Speed = 180;
+			player3.Entity = new Player3();
+
+			_world.AddPlayer(player2);
+			_world.AddPlayer(player3);
 		}
 
 		static void world_EntityExited(object sender, EntityExitEventArgs e)
@@ -105,7 +126,7 @@ namespace TestEcoWorldHost
 			return player;
 		}
 
-		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld()
+		private static EcoDev.Engine.WorldEngine.EcoWorld StartReallySimpleWorld()
 		{
 			Map map = new Map(10, 10, 1);
 			
@@ -122,7 +143,7 @@ namespace TestEcoWorldHost
 			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
 			return world;
 		}
-		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld2()
+		private static EcoDev.Engine.WorldEngine.EcoWorld StartModeratelyComplexWorld()
 		{
 			Map map = new Map(10, 10, 1);
 
@@ -143,7 +164,7 @@ namespace TestEcoWorldHost
 			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
 			return world;
 		}
-		private static EcoDev.Engine.WorldEngine.EcoWorld CreateWorld3()
+		private static EcoDev.Engine.WorldEngine.EcoWorld StartMuchMoreComplexWorld()
 		{
 			Map map = new Map(20, 20, 1);
 
@@ -165,8 +186,53 @@ namespace TestEcoWorldHost
 
 			map.InitialiseMap();
 
+			_playerTimer.Interval = 6000;  // add a 2nd player after 6 seconds
+			_playerTimer.Elapsed += new ElapsedEventHandler(playerTimer_Elapsed);
+			_playerTimer.Start();
+
+
 			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
 			return world;
 		}
+
+		private static EcoDev.Engine.WorldEngine.EcoWorld StartVeryComplexMultiPlayerWorld()
+		{
+			Map map = new Map(30, 30, 1);
+
+			// setup entry and exit points
+			map.Set(0, 0, 0, new MapEntranceBlock());
+			map.Set(25, 29, 0, new MapExitBlock());
+
+			// Setup some barrier blocks
+			map.Set(3, 4, 0, new SolidBlock());
+			map.Set(6, 7, 0, new SolidBlock());
+			map.Set(3, 0, 0, new SolidBlock());
+			map.Set(3, 1, 0, new SolidBlock());
+			map.Set(3, 2, 0, new SolidBlock());
+			map.Set(2, 2, 0, new SolidBlock());
+			map.Set(5, 9, 0, new SolidBlock());
+			map.Set(5, 19, 0, new SolidBlock());
+			map.Set(14, 19, 0, new SolidBlock());
+			map.Set(14, 29, 0, new SolidBlock());
+			map.Set(14, 28, 0, new SolidBlock());
+			map.Set(14, 27, 0, new SolidBlock());
+			map.Set(14, 26, 0, new SolidBlock());
+			map.Set(14, 25, 0, new SolidBlock());
+			map.Set(14, 24, 0, new SolidBlock());
+			map.Set(29, 20, 0, new SolidBlock());
+			map.Set(28, 20, 0, new SolidBlock());
+			map.Set(27, 20, 0, new SolidBlock());
+
+			map.InitialiseMap();
+
+			_playerTimer.Interval = 7000;  // add a 2nd and 3rd player after 7 seconds
+			_playerTimer.Elapsed += new ElapsedEventHandler(playerTimer_Elapsed_ForReallyComplexWorld);
+			_playerTimer.Start();
+
+
+			var world = new EcoDev.Engine.WorldEngine.EcoWorld("TestWorld", map, null, true);
+			return world;
+		}
+
 	}
 }

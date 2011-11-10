@@ -22,7 +22,7 @@ namespace EcoDev.Core.Common
 		{
 			get
 			{
-				return Math.Max((int)(Speed / (byte.MaxValue / 3)), 1);
+				return GetEvenlyDistributedRangeOfAdditivesForQualities(Speed);
 			}
 		}
 
@@ -30,8 +30,15 @@ namespace EcoDev.Core.Common
 		{
 			get
 			{
-				return (int)(entity.Qualities.Sight / (byte.MaxValue / 3));
+				return GetEvenlyDistributedRangeOfAdditivesForQualities(Sight);
 			}
+		}
+
+		private int GetEvenlyDistributedRangeOfAdditivesForQualities(byte qualityValue)
+		{
+			if (qualityValue == 0)
+				return 0;
+			return (int)(qualityValue / (byte.MaxValue / 3)) + 1;
 		}
 
 		protected void SetQualities(LivingEntityQualities entityQualities)
