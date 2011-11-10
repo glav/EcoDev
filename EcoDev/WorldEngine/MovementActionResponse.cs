@@ -82,20 +82,16 @@ namespace EcoDev.Engine.WorldEngine
 			switch (DecidedAction.DirectionToMove)
 			{
 				case MovementDirection.Forward:
-					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.ForwardFacingPositions);
-					//blockToMoveTo = positionCtxt.ForwardFacingPositions[0];
+					blockToMoveTo = positionCtxt.ForwardFacingPositions[0];
 					break;
 				case MovementDirection.Back:
-					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.RearFacingPositions);
-					//blockToMoveTo = positionCtxt.RearFacingPositions[0];
+					blockToMoveTo = positionCtxt.RearFacingPositions[0];
 					break;
 				case MovementDirection.Left:
-					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.LeftFacingPositions);
-					//blockToMoveTo = positionCtxt.LeftFacingPositions[0];
+					blockToMoveTo = positionCtxt.LeftFacingPositions[0];
 					break;
 				case MovementDirection.Right:
-					blockToMoveTo = GetBlockToMoveToBasedOnSpeed(positionCtxt.RightFacingPositions);
-					//blockToMoveTo = positionCtxt.RightFacingPositions[0];
+					blockToMoveTo = positionCtxt.RightFacingPositions[0];
 					break;
 				case MovementDirection.Up:
 					throw new NotImplementedException("Up movement not handled yet");
@@ -107,28 +103,5 @@ namespace EcoDev.Engine.WorldEngine
 			return blockToMoveTo;
 		}
 
-		private MapBlock GetBlockToMoveToBasedOnSpeed(MapBlock[] positionsAlongAxisToMoveTo)
-		{
-			int relativeSpeed = Inhabitant.Qualities.RelativeSpeed;
-			int indexOfBlockArray = 0 + relativeSpeed;
-			if (positionsAlongAxisToMoveTo.Length < (indexOfBlockArray+1))
-			{
-				indexOfBlockArray = positionsAlongAxisToMoveTo.Length-1;
-			}
-			var blockToMoveTo = positionsAlongAxisToMoveTo[indexOfBlockArray];
-			if (!CanBlockBeMovedTo(blockToMoveTo) && indexOfBlockArray > 0)
-			{
-				while (indexOfBlockArray != 0)
-				{
-					indexOfBlockArray--;
-					blockToMoveTo = positionsAlongAxisToMoveTo[indexOfBlockArray];
-					if (CanBlockBeMovedTo(blockToMoveTo))
-					{
-						break;
-					}
-				}
-			}
-			return blockToMoveTo;
-		}
 	}
 }

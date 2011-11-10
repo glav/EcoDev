@@ -216,26 +216,39 @@ namespace EcoDev.Engine.WorldEngine
 				return;
 			}
 
-			FireDebugInfoEvent("Performing entity action on Entity:{0}", entity.Entity.Name);
-			var positionContext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
-			ActionContext context = new ActionContext(positionContext);
-
-			var asyncEngine = new AsyncActionExecutionEngine(entity, context);
-			var result = asyncEngine.DetermineEntityAction();
-
-			if (result.ErrorException == null)
+			FireDebugInfoEvent("Performing entity action on Entity:{0}, with speed of {1} (relative speed:{2})", entity.Entity.Name, entity.Qualities.Speed,entity.Qualities.RelativeSpeed);
+			// We take into account speed here. The base speed is a relative speed of 1
+			// so a player with a relative speed of 1 can move at 1 x normal speed.
+			// If its, 2 they can move twice as fastso we simply perform their actions twice
+			// during 1 cycle. a relative speed of 3 (currently the max) will perform
+			// actions 3 times as fast and thus one mormal movement contitutes 3 movements
+			// for a relative speed of 3
+			for (var speedCnt = 0; speedCnt < entity.Qualities.RelativeSpeed; speedCnt++)
 			{
-				ActOnEntityActionResult(entity, result.ActionResult);
-				FireInhabitantPerformedActionEvent(result.ActionResult.DecidedAction, result.ActionResult.DirectionToMove, entity.PositionInMap.Clone());
-			}
-			else
-			{
-				//TODO: Mark entity as invalid and remove in garbage collection phase
-				FireDebugInfoEvent("Player {0} threw exception. Marking as invalid and removing from world.", entity.Entity.Name);
+				var positionContext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
+				ActionContext context = new ActionContext(positionContext);
+
+				var asyncEngine = new AsyncActionExecutionEngine(entity, context);
+				var result = asyncEngine.DetermineEntityAction();
+
+				if (result.ErrorException == null)
+				{
+					var canContinue = ActOnEntityActionResultAndDetermineIfCanContinueFurtherActions(entity, result.ActionResult);
+					FireInhabitantPerformedActionEvent(result.ActionResult.DecidedAction, result.ActionResult.DirectionToMove, entity.PositionInMap.Clone());
+					if (!canContinue)
+					{
+						break;
+					}
+				}
+				else
+				{
+					//TODO: Mark entity as invalid and remove in garbage collection phase
+					FireDebugInfoEvent("Player {0} threw exception. Marking as invalid and removing from world.", entity.Entity.Name);
+				}
 			}
 		}
 
-		private void ActOnEntityActionResult(LivingEntityWithQualities entity, ActionResult actionResult)
+		private bool ActOnEntityActionResultAndDetermineIfCanContinueFurtherActions(LivingEntityWithQualities entity, ActionResult actionResult)
 		{
 			FireDebugInfoEvent("Acting on Entity:{0} Result, ActionResult:{1}", entity.Entity.Name, actionResult.DecidedAction);
 			var responseActionHandler = ActionResponseFactory.CreateActionResponseHandler(actionResult, entity, this);
@@ -247,12 +260,15 @@ namespace EcoDev.Engine.WorldEngine
 				{
 					// Player has found an exit.
 					FireDebugInfoEvent("Inhabitant [{0}] has found an exit! Now exiting world.", entity.Entity.Name);
+					return false;
 				}
 			}
 			catch (Exception ex)
 			{
 				HandlePlayerCriticalError(entity);
+				return false;
 			}
+			return true;
 			//throw new NotImplementedException();
 		}
 

@@ -74,6 +74,40 @@ namespace EcoDev.UnitTests
 			Assert.AreEqual<double>(24, entity.Touch);
 
 		}
+
+		[TestMethod]
+		public void EntityRelativeSpeedShouldBeEvenlyDistributed()
+		{
+			var entity = new SomeEntityWithQualitities()
+			{
+				Speed = 1
+			};
+
+			// Note: Speed/Sight and other 'byte' valued attributes
+			// is a type of byte so has a min of 0 and max of 255
+			// the relative speed should be a simple additive number between
+			// 0 and 4 based on what number if chosen in betwene the 0-255 range
+
+			Assert.AreEqual<int>(1, entity.RelativeSpeed);
+
+			entity.Speed = 0;
+			Assert.AreEqual<int>(0, entity.RelativeSpeed);
+
+			entity.Speed = 85;
+			Assert.AreEqual<int>(2, entity.RelativeSpeed);
+
+			entity.Speed = 90;
+			Assert.AreEqual<int>(2, entity.RelativeSpeed);
+			
+			entity.Speed = 180;
+			Assert.AreEqual<int>(3, entity.RelativeSpeed);
+
+			entity.Speed = 254;
+			Assert.AreEqual<int>(3, entity.RelativeSpeed);
+			
+			entity.Speed = 255;
+			Assert.AreEqual<int>(4, entity.RelativeSpeed);
+		}
 	}
 
 	public class SomeEntityWithQualitities : LivingEntityQualities
