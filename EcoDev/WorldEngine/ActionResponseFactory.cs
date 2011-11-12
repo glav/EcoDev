@@ -16,7 +16,7 @@ namespace EcoDev.Engine.WorldEngine
 		static ActionResponseFactory()
 		{
 			// Build up a list of ActionResponses
-			_responseList.Add( ActionToPerform.Move, (entity,world, actionResult) => { return new MovementActionResponse() { Inhabitant = entity, World = world, DecidedAction = actionResult }; });
+			_responseList.Add( ActionToPerform.Move, (entity,world, actionResult) => { return new MovementActionResponse(world) { Inhabitant = entity, DecidedAction = actionResult }; });
 		}
 
 		public static ActionResponse CreateActionResponseHandler(ActionResult actionResult, LivingEntityWithQualities entity,EcoWorld world)

@@ -16,8 +16,8 @@ namespace EcoDev.UnitTests
 		[TestMethod]
 		public void NextRelativePositionShouldBeValid()
 		{
-			var engine = new InhabitantPositionEngine();
-			
+			var engine = new InhabitantPositionEngine(new DummyWorld());
+
 			var entity = new LivingEntityWithQualities();
 			entity.PositionInMap = new MapPosition(5,5,0);
 
@@ -47,4 +47,49 @@ namespace EcoDev.UnitTests
 
 		}
 	}
+
+	public class DummyWorld : IEcoWorld
+	{
+		public void AddPlayer(LivingEntityWithQualities player)
+		{
+			throw new NotImplementedException();
+		}
+
+		public event EventHandler<DebugInfoEventArgs> DebugInformation;
+
+		public void DestroyWorld()
+		{
+			throw new NotImplementedException();
+		}
+
+		public event EventHandler<EntityExitEventArgs> EntityExited;
+
+		public event EventHandler<InhabitantActionEventArgs> InhabitantPerformedAction;
+
+		public IEnumerable<LivingEntityWithQualities> Inhabitants
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public void StartWorld()
+		{
+			throw new NotImplementedException();
+		}
+
+		public Engine.MapEngine.Map WorldMap
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public void WriteDebugInformation(string source, string message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void WriteDebugInformation(string source, string message, params object[] args)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
 }

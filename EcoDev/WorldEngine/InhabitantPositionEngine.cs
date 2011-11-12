@@ -7,14 +7,26 @@ using EcoDev.Engine.MapEngine;
 using EcoDev.Core.Common.Maps;
 using EcoDev.Core.Common.Actions;
 using EcoDev.Core.Common;
+using EcoDev.Core.Common.BuildingBlocks;
 
 namespace EcoDev.Engine.WorldEngine
 {
 	public class InhabitantPositionEngine
 	{
-		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity, Map worldMap)
+		private IEcoWorld _world;
+
+		public InhabitantPositionEngine(IEcoWorld world)
+		{
+			if (world == null)
+			{
+				throw new ArgumentNullException("World cannot be NULL");
+			}
+			_world = world;
+		}
+		internal PositionContext ConstructPositionContextForEntity(LivingEntityWithQualities entity)
 		{
 			int relativeSight = entity.Qualities.RelativeSight;
+			var worldMap = _world.WorldMap;
 
 			MapBlock currentPosition = worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition);
 			var fwdFacingBlocks = new List<MapBlock>();
@@ -28,20 +40,20 @@ namespace EcoDev.Engine.WorldEngine
 					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
 					{
 						int relativePos = 1 + blockCnt;
-						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
-						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						fwdFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
 					}
 					break;
 				case WorldAxis.PositiveY:
 					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
 					{
 						int relativePos = 1 + blockCnt;
-						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
-						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
-						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
-						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						fwdFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
 					}
 					break;
 				case WorldAxis.PositiveZ:
@@ -50,20 +62,20 @@ namespace EcoDev.Engine.WorldEngine
 					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
 					{
 						int relativePos = 1 + blockCnt;
-						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
-						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
-						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						fwdFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
 					}
 					break;
 				case WorldAxis.NegativeY:
 					for (int blockCnt = 0; blockCnt <= relativeSight; blockCnt++)
 					{
 						int relativePos = 1 + blockCnt;
-						fwdFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
-						rearFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
-						leftFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
-						rightFacingBlocks.Add(worldMap.Get(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
+						fwdFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition - relativePos, entity.PositionInMap.zPosition));
+						rearFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						leftFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition + relativePos, entity.PositionInMap.yPosition + relativePos, entity.PositionInMap.zPosition));
+						rightFacingBlocks.Add(GetBlockTypeAtMapPosition(entity.PositionInMap.xPosition - relativePos, entity.PositionInMap.yPosition, entity.PositionInMap.zPosition));
 					}
 					break;
 				case WorldAxis.NegativeZ:
@@ -72,6 +84,21 @@ namespace EcoDev.Engine.WorldEngine
 
 			var posContext = new PositionContext(currentPosition, fwdFacingBlocks.ToArray(), rearFacingBlocks.ToArray(), leftFacingBlocks.ToArray(), rightFacingBlocks.ToArray());
 			return posContext;
+		}
+
+		private MapBlock GetBlockTypeAtMapPosition(int xPos, int yPos, int zPos)
+		{
+			var blockInMap = _world.WorldMap.Get(xPos, yPos, zPos);
+			var entities= _world.Inhabitants.ToArray();
+			for (int cnt=0; cnt < entities.Length; cnt++)
+			{
+				var entity = entities[cnt];
+				if (entity.PositionInMap.xPosition == xPos && entity.PositionInMap.yPosition == yPos && entity.PositionInMap.zPosition == zPos)
+				{
+					blockInMap = new PlayerOccupiedBlock();
+				}
+			}
+			return blockInMap;
 		}
 
 		internal MapPosition GetNextRelativePositionInMap(LivingEntityWithQualities entity, MovementDirection direction)

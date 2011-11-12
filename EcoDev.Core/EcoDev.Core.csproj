@@ -48,6 +48,7 @@
     <Compile Include="Common\BuildingBlocks\MapBlockAccessibility.cs" />
     <Compile Include="Common\BuildingBlocks\MapEntranceBlock.cs" />
     <Compile Include="Common\BuildingBlocks\MapExitBlock.cs" />
+    <Compile Include="Common\BuildingBlocks\PlayerOccupiedBlock.cs" />
     <Compile Include="Common\BuildingBlocks\SolidBlock.cs" />
     <Compile Include="Common\IWorld.cs" />
     <Compile Include="Common\Maps\MapPosition.cs" />

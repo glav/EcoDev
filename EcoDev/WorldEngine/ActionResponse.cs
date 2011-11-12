@@ -10,8 +10,13 @@ namespace EcoDev.Engine.WorldEngine
 {
 	internal abstract class ActionResponse
 	{
+		private IEcoWorld _world;
+		public ActionResponse(IEcoWorld world)
+		{
+			_world = world;
+		}
 		public LivingEntityWithQualities Inhabitant { get; set; }
-		public EcoWorld World { get; set; }
+		public IEcoWorld World { get { return _world; } }
 		public ActionResult DecidedAction { get; set; }
 
 		protected abstract void HandleActionToPerform();

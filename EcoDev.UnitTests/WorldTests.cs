@@ -70,14 +70,14 @@ namespace EcoDev.UnitTests
 		public void WorldCanConstructValidPositionContext()
 		{
 			var world = GetTestWorld();
-			var positionEngine = new InhabitantPositionEngine();
+			var positionEngine = new InhabitantPositionEngine(world);
 
 			Assert.IsNotNull(world);
 
 			world.AddInhabitantsToMap();
 
 			var playerInWorld = world.Inhabitants.First();
-			var posContext = positionEngine.ConstructPositionContextForEntity(playerInWorld, world.WorldMap);
+			var posContext = positionEngine.ConstructPositionContextForEntity(playerInWorld);
 
 			Assert.IsNotNull(posContext);
 
