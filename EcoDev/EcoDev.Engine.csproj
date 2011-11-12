@@ -51,6 +51,7 @@
     <Compile Include="WorldEngine\DebugInfoEventArgs.cs" />
     <Compile Include="WorldEngine\EcoWorld.cs" />
     <Compile Include="WorldEngine\EntityExitEventArgs.cs" />
+    <Compile Include="WorldEngine\IEcoWorld.cs" />
     <Compile Include="WorldEngine\InhabitantActionEventArgs.cs" />
     <Compile Include="WorldEngine\InhabitantPositionEngine.cs" />
     <Compile Include="WorldEngine\MovementActionResponse.cs" />

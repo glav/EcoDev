@@ -14,7 +14,7 @@ using EcoDev.Core.Common.BuildingBlocks;
 
 namespace EcoDev.Engine.WorldEngine
 {
-	public class EcoWorld : IWorld, IDisposable
+	public class EcoWorld : IEcoWorld, IInhabitantWorld, IDisposable
 	{
 		Map _worldMap;
 		CancellationTokenSource _tokenSource;
@@ -22,7 +22,7 @@ namespace EcoDev.Engine.WorldEngine
 		string _worldName;
 		Task _worldTask = null;
 		const int MIN_MILLISECONDS_TO_CYCLE_THROUGH_PLAYER_ACTIONS = 1000;
-		public InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
+		public InhabitantPositionEngine _positionEngine;
 		static object _debugLock = new object();
 		bool _enableDebug = false;
 
@@ -48,6 +48,7 @@ namespace EcoDev.Engine.WorldEngine
 			}
 
 			_tokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken(false));
+			_positionEngine = new InhabitantPositionEngine(this);
 		}
 
 		public Map WorldMap { get { return _worldMap; } }
@@ -157,7 +158,7 @@ namespace EcoDev.Engine.WorldEngine
 			for (int cnt = 0; cnt < _inhabitants.Count; cnt++)
 			{
 				var inhabitant = _inhabitants[cnt];
-				var posCtxt = _positionEngine.ConstructPositionContextForEntity(inhabitant, _worldMap);
+				var posCtxt = _positionEngine.ConstructPositionContextForEntity(inhabitant);
 				if (posCtxt.CurrentPosition is MapExitBlock)
 				{
 					playersCompleted.Add(inhabitant);
@@ -225,7 +226,7 @@ namespace EcoDev.Engine.WorldEngine
 			// for a relative speed of 3
 			for (var speedCnt = 0; speedCnt < entity.Qualities.RelativeSpeed; speedCnt++)
 			{
-				var positionContext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
+				var positionContext = _positionEngine.ConstructPositionContextForEntity(entity);
 				ActionContext context = new ActionContext(positionContext);
 
 				var asyncEngine = new AsyncActionExecutionEngine(entity, context);
@@ -255,7 +256,7 @@ namespace EcoDev.Engine.WorldEngine
 			try
 			{
 				responseActionHandler.ExecuteActionToPerform();
-				var positionCOntext = _positionEngine.ConstructPositionContextForEntity(entity, _worldMap);
+				var positionCOntext = _positionEngine.ConstructPositionContextForEntity(entity);
 				if (positionCOntext.CurrentPosition is MapExitBlock)
 				{
 					// Player has found an exit.

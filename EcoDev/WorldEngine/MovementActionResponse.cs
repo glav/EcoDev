@@ -11,10 +11,14 @@ namespace EcoDev.Engine.WorldEngine
 {
 	internal class MovementActionResponse : ActionResponse
 	{
-		InhabitantPositionEngine _positionEngine = new InhabitantPositionEngine();
+		InhabitantPositionEngine _positionEngine;
+		public MovementActionResponse(IEcoWorld world) : base( world)
+		{
+			_positionEngine = new InhabitantPositionEngine(World);
+		}
 		protected override void HandleActionToPerform()
 		{
-			var positionCtxt = _positionEngine.ConstructPositionContextForEntity(Inhabitant,World.WorldMap);
+			var positionCtxt = _positionEngine.ConstructPositionContextForEntity(Inhabitant);
 			MapBlock blockToMoveTo = GetPotentialBlockToMoveToInMap(positionCtxt);
 
 			int relativeSpeed = Inhabitant.Qualities.RelativeSpeed;

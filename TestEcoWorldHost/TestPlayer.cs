@@ -9,17 +9,19 @@ using EcoDev.Core.Common.Maps;
 
 namespace TestEcoWorldHost
 {
-	public class TestPlayer:LivingEntity
+	public class TestPlayer : LivingEntity
 	{
+		MovementDirection rememberedDirection;
+
 		public TestPlayer()
 		{
 			Name = "Beta Boy";
 			LifeKey = Guid.NewGuid();
-			Size = new EntitySize() { Height = 1, Thickness=1, Width = 1};
+			Size = new EntitySize() { Height = 1, Thickness = 1, Width = 1 };
 			Weight = 10;
 
 		}
-		public override ActionResult DecideActionToPerform(EcoDev.Core.Common.Actions.ActionContext actionContext)
+		public override ActionResult DecideActionToPerform(ActionContext actionContext)
 		{
 			try
 			{
@@ -45,32 +47,43 @@ namespace TestEcoWorldHost
 							break;
 					}
 					World.WriteDebugInformation(Name, string.Format("Attempting to move {0} based on previous action to block {1}", PreviousAction.DirectionToMove, nextBlockBAsedOnPreviousMovement != null ? nextBlockBAsedOnPreviousMovement.GetType().ToString() : "Empty"));
-					
-					
+
+
+					// If we can keep moving in the same direction, then do it.
+					// Elselet it flow through to normal directional logic
+					if (CheckAccessibilityOfMapBlock(nextBlockBAsedOnPreviousMovement))
+					{
+						action.DirectionToMove = PreviousAction.DirectionToMove;
+						World.WriteDebugInformation(Name, string.Format("Moving {0} based on previous action", action.DirectionToMove));
+						return action;
+					}
+
 					// If we were moving back, then try going left or right first
 					if (PreviousAction.DirectionToMove == MovementDirection.Back)
 					{
+						Random rnd = new Random(DateTime.Now.Millisecond);
+						if (rnd.Next(0, 20) > 17)
+						{
+							var spontaneousDirections = new MovementDirection[] { MovementDirection.Back, MovementDirection.Forward, MovementDirection.Right, MovementDirection.Left };
+							var randomDir = spontaneousDirections[rnd.Next(0, 3)];
+							action.DirectionToMove = randomDir;
+							return action;
+						}
+
 						if (CheckAccessibilityOfMapBlock(actionContext.Position.LeftFacingPositions[0]))
 						{
 							nextBlockBAsedOnPreviousMovement = actionContext.Position.LeftFacingPositions[0];
 							action.DirectionToMove = MovementDirection.Left;
+							rememberedDirection = action.DirectionToMove;
 							return action;
 						}
 						if (CheckAccessibilityOfMapBlock(actionContext.Position.RightFacingPositions[0]))
 						{
 							nextBlockBAsedOnPreviousMovement = actionContext.Position.RightFacingPositions[0];
 							action.DirectionToMove = MovementDirection.Right;
+							rememberedDirection = action.DirectionToMove;
 							return action;
 						}
-					}
-					// If we can keep moving in the same direction, then do it.
-					// Elselet it flow through to normal directional logic
-					if (CheckAccessibilityOfMapBlock(nextBlockBAsedOnPreviousMovement))
-					{
-						action.DirectionToMove = PreviousAction.DirectionToMove;
-
-						World.WriteDebugInformation(Name,string.Format("Moving {0} based on previous action", action.DirectionToMove));
-						return action;
 					}
 				}
 
@@ -112,14 +125,17 @@ namespace TestEcoWorldHost
 			}
 			catch (Exception ex)
 			{
-				World.WriteDebugInformation("Player: "+ Name, string.Format("Player Generated exception: {0}",ex.Message));
+				World.WriteDebugInformation("Player: " + Name, string.Format("Player Generated exception: {0}", ex.Message));
 				throw ex;
 			}
 		}
 
 		private bool CheckAccessibilityOfMapBlock(MapBlock block)
 		{
-			if (block == null || block.Accessibility == MapBlockAccessibility.AllowEntry || block.Accessibility == MapBlockAccessibility.AllowExit || block.Accessibility == MapBlockAccessibility.AllowPotentialEntry)
+			if ((block == null || block.Accessibility == MapBlockAccessibility.AllowEntry 
+					|| block.Accessibility == MapBlockAccessibility.AllowExit 
+					|| block.Accessibility == MapBlockAccessibility.AllowPotentialEntry)
+					&& !(block is MapEntranceBlock))
 			{
 				return true;
 			}
